@@ -18,7 +18,6 @@ public class UserController {
     @Autowired
     private UserService service;
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/")
     public ResponseEntity<List<UserSummaryDTO>> getUsers() {
