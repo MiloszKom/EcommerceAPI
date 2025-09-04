@@ -1,5 +1,6 @@
 package com.example.EcommerceAPI.user;
 
+import com.example.EcommerceAPI.cart.Cart;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +38,12 @@ public class DataInitializer {
                 normalUser.setEmail(userEmail);
                 normalUser.setPassword(passwordEncoder.encode(userPassword));
                 normalUser.setRole(User.Role.CUSTOMER);
+
+                Cart cart = new Cart();
+                cart.setUser(normalUser);
+                normalUser.setCart(cart);
+
+
                 userRepository.save(normalUser);
             }
 
@@ -47,6 +54,11 @@ public class DataInitializer {
                 adminUser.setEmail(adminEmail);
                 adminUser.setPassword(passwordEncoder.encode(adminPassword));
                 adminUser.setRole(User.Role.ADMIN);
+
+                Cart cart = new Cart();
+                cart.setUser(adminUser);
+                adminUser.setCart(cart);
+
                 userRepository.save(adminUser);
             }
         };

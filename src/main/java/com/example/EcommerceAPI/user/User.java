@@ -1,5 +1,6 @@
 package com.example.EcommerceAPI.user;
 
+import com.example.EcommerceAPI.cart.Cart;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -26,6 +27,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.CUSTOMER;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cart cart;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Role {
@@ -36,7 +40,6 @@ public class User {
     public Long getId() {
         return id;
     }
-
 
     public String getUsername() {
         return username;
@@ -58,6 +61,10 @@ public class User {
         return password;
     }
 
+    public Cart getCart() {
+        return cart;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -76,5 +83,9 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 }

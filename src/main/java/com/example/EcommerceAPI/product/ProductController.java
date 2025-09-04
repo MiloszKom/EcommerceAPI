@@ -6,6 +6,7 @@ import com.example.EcommerceAPI.product.dto.ProductSummaryDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
     public ResponseEntity<ProductDetailsDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDetailsDTO created = service.createProduct(productDTO);
@@ -35,7 +37,7 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductDetailsDTO> updateProduct(
             @PathVariable Long id,
@@ -45,6 +47,7 @@ public class ProductController {
         return ResponseEntity.ok(updated);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         service.deleteProduct(id);

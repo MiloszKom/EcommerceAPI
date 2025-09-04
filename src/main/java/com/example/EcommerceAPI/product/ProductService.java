@@ -13,9 +13,9 @@ import java.util.List;
 public class ProductService {
 
     @Autowired
-    public ProductRepository repository;
+    private ProductRepository repository;
 
-    private Product getProduct(long productId) {
+    public Product getProduct(long productId) {
         return repository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
     }
