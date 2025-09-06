@@ -3,6 +3,8 @@ package com.example.EcommerceAPI.cart;
 import com.example.EcommerceAPI.cart.dto.CartDetailsDTO;
 import com.example.EcommerceAPI.cart.dto.CartItemDTO;
 import com.example.EcommerceAPI.cart.dto.CartSummaryDTO;
+import com.example.EcommerceAPI.cart.entity.Cart;
+import com.example.EcommerceAPI.cart.entity.CartItem;
 import com.example.EcommerceAPI.product.ProductMapper;
 
 import java.math.BigDecimal;

@@ -1,9 +1,10 @@
-package com.example.EcommerceAPI.cart;
+package com.example.EcommerceAPI.cart.entity;
 
 import com.example.EcommerceAPI.product.Product;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "cart_items")
 public class CartItem {
 
     @Id

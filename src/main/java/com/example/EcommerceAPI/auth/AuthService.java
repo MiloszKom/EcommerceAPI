@@ -3,7 +3,7 @@ package com.example.EcommerceAPI.auth;
 import com.example.EcommerceAPI.auth.dto.AuthResponse;
 import com.example.EcommerceAPI.auth.dto.LoginRequest;
 import com.example.EcommerceAPI.auth.dto.RegisterRequest;
-import com.example.EcommerceAPI.cart.Cart;
+import com.example.EcommerceAPI.cart.entity.Cart;
 import com.example.EcommerceAPI.config.JwtService;
 import com.example.EcommerceAPI.exception.types.ConflictException;
 import com.example.EcommerceAPI.user.User;

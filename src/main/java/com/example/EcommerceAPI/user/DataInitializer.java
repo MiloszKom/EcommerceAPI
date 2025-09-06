@@ -1,6 +1,6 @@
 package com.example.EcommerceAPI.user;
 
-import com.example.EcommerceAPI.cart.Cart;
+import com.example.EcommerceAPI.cart.entity.Cart;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;

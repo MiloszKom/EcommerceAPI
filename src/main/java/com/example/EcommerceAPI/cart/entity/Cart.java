@@ -1,4 +1,4 @@
-package com.example.EcommerceAPI.cart;
+package com.example.EcommerceAPI.cart.entity;
 
 import com.example.EcommerceAPI.user.User;
 import jakarta.persistence.*;

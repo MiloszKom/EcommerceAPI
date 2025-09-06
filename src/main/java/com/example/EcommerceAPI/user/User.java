@@ -1,10 +1,13 @@
 package com.example.EcommerceAPI.user;
 
-import com.example.EcommerceAPI.cart.Cart;
+import com.example.EcommerceAPI.cart.entity.Cart;
+import com.example.EcommerceAPI.order.entity.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -29,6 +32,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -84,6 +90,10 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public List<Order> getOrders() { return orders; }
+
+    public void setOrders(List<Order> orders) { this.orders = orders; }
 
     public void setCart(Cart cart) {
         this.cart = cart;

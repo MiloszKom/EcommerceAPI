@@ -1,5 +1,6 @@
 package com.example.EcommerceAPI.cart;
 
+import com.example.EcommerceAPI.cart.entity.Cart;
 import com.example.EcommerceAPI.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

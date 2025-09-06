@@ -3,10 +3,11 @@ package com.example.EcommerceAPI.cart;
 import com.example.EcommerceAPI.auth.AuthService;
 import com.example.EcommerceAPI.cart.dto.AddToCartRequest;
 import com.example.EcommerceAPI.cart.dto.CartDetailsDTO;
+import com.example.EcommerceAPI.cart.entity.Cart;
+import com.example.EcommerceAPI.cart.entity.CartItem;
 import com.example.EcommerceAPI.exception.types.CartNotFoundException;
 import com.example.EcommerceAPI.exception.types.ProductNotFoundException;
 import com.example.EcommerceAPI.product.Product;
-import com.example.EcommerceAPI.product.ProductRepository;
 import com.example.EcommerceAPI.product.ProductService;
 import com.example.EcommerceAPI.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,10 @@ public class CartService {
     }
 
     public CartDetailsDTO addProduct(AddToCartRequest request) {
+        Product product = productService.getProduct(request.getProductId());
+
+        productService.validateStock(product.getId(), request.getQuantity());
+
         Cart cart = getCart();
 
         boolean exists = cart.getItems().stream()
@@ -44,8 +49,6 @@ public class CartService {
         if (exists) {
             throw new IllegalArgumentException("Product is already in the cart.");
         }
-
-        Product product = productService.getProduct(request.getProductId());
 
         CartItem newItem = new CartItem();
         newItem.setProduct(product);

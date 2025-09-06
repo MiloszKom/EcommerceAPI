@@ -66,4 +66,30 @@ public class ProductService {
         Product product = getProduct(productId);
         repository.delete(product);
     }
+
+    // Inventory Management
+
+    public void validateStock(Long productId, int quantity) {
+        Product product = getProduct(productId);
+        if (product.getStock() < quantity) {
+            throw new IllegalArgumentException(
+                    "Not enough stock for product: " + product.getName()
+            );
+        }
+    }
+
+    public void decrementStock(Long productId, int quantity) {
+        Product product = getProduct(productId);
+        if (product.getStock() < quantity) {
+            throw new IllegalArgumentException("Not enough stock for product " + product.getName());
+        }
+        product.setStock(product.getStock() - quantity);
+        repository.save(product);
+    }
+
+    public void incrementStock(Long productId, int quantity) {
+        Product product = getProduct(productId);
+        product.setStock(product.getStock() + quantity);
+        repository.save(product);
+    }
 }
