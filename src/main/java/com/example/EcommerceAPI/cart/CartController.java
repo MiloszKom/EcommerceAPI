@@ -14,7 +14,7 @@ public class CartController {
     @Autowired
     private CartService service;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<CartDetailsDTO> getUserCart() {
         CartDetailsDTO cart = service.getUserCart();
         return ResponseEntity.ok(cart);
@@ -26,7 +26,7 @@ public class CartController {
         return ResponseEntity.ok(updatedCart);
     }
 
-    @PutMapping("/")
+    @PutMapping
     public ResponseEntity<CartDetailsDTO> updateCartItem(@Valid @RequestBody AddToCartRequest cartItemDTO) {
         CartDetailsDTO updatedCart = service.updateQuantity(cartItemDTO);
         return ResponseEntity.ok(updatedCart);

@@ -154,8 +154,8 @@ public class OrderService {
         return OrderMapper.toDetailsDTO(cancelledOrder);
     }
 
-    public List<OrderSummaryDTO> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
+    public List<OrderSummaryDTO> getAllOrders(OrderStatus status) {
+        List<Order> orders = orderRepository.findOrders(status);
         return orders.stream()
                 .map(OrderMapper::toSummaryDTO)
                 .toList();

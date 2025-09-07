@@ -3,6 +3,7 @@ package com.example.EcommerceAPI.order;
 import com.example.EcommerceAPI.order.dto.OrderDetailsDTO;
 import com.example.EcommerceAPI.order.dto.OrderItemDTO;
 import com.example.EcommerceAPI.order.dto.OrderSummaryDTO;
+import com.example.EcommerceAPI.order.entity.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +19,7 @@ public class OrderController {
     @Autowired
     OrderService service;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<OrderDetailsDTO> createOrder() {
         OrderDetailsDTO newOrder = service.createOrder();
         URI location = URI.create("/api/orders/" + newOrder.id());
@@ -50,9 +51,21 @@ public class OrderController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/")
-    public ResponseEntity<List<OrderSummaryDTO>> getAllOrders() {
-        List<OrderSummaryDTO> orders = service.getAllOrders();
+    @GetMapping
+    public ResponseEntity<List<OrderSummaryDTO>> getAllOrders(
+            @RequestParam(required = false) String status
+    ) {
+        OrderStatus orderStatus = null;
+
+        if (status != null) {
+            try {
+                orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                orderStatus = null;
+            }
+        }
+
+        List<OrderSummaryDTO> orders = service.getAllOrders(orderStatus);
         return ResponseEntity.ok(orders);
     }
 

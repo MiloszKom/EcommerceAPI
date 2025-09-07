@@ -7,6 +7,7 @@ import com.example.EcommerceAPI.product.dto.ProductSummaryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -34,10 +35,8 @@ public class ProductService {
         return ProductMapper.toDetailsDTO(saved);
     }
 
-    public List<ProductSummaryDTO> getProducts() {
-        List<Product> products;
-
-        products = repository.findAll();
+    public List<ProductSummaryDTO> getProducts(String category, BigDecimal maxPrice) {
+        List<Product> products = repository.findProducts(category, maxPrice);
 
         return products.stream()
                 .map(ProductMapper::toSummaryDTO)

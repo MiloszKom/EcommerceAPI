@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -19,15 +20,18 @@ public class ProductController {
     private ProductService service;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ProductDetailsDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDetailsDTO created = service.createProduct(productDTO);
         return ResponseEntity.ok(created);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<ProductSummaryDTO>> getProducts() {
-        List<ProductSummaryDTO> products = service.getProducts();
+    @GetMapping
+    public ResponseEntity<List<ProductSummaryDTO>> getProducts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal maxPrice
+    ) {
+        List<ProductSummaryDTO> products = service.getProducts(category, maxPrice);
         return ResponseEntity.ok(products);
     }
 
