@@ -24,9 +24,6 @@ public class CartService {
     private CartRepository repository;
 
     @Autowired
-    private ProductServiceClient productServiceClient;
-
-    @Autowired
     private ProductClient productClient;
 
     public Cart getOrCreateCart(Long userId) {
