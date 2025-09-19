@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cart_db
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+  security:
+    user:
+      name: testuser
+      password: testpassword
+
+jwt:
+  secret: testsecret
+
+product:
+  service:
+    url: http://localhost:8082/
+
+cart:
+  service:
+    url: http://localhost:8083/
