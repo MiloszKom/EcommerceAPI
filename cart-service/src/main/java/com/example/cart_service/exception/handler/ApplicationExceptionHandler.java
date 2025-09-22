@@ -1,5 +1,6 @@
 package com.example.cart_service.exception.handler;
 
+import com.example.cart_service.exception.types.AccessDeniedException;
 import com.example.cart_service.exception.types.NotFoundException;
 import com.example.cart_service.exception.response.ErrorResponse;
 import com.example.cart_service.exception.types.ConflictException;
@@ -7,7 +8,6 @@ import com.example.cart_service.exception.types.ServiceCommunicationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -39,8 +39,8 @@ public class ApplicationExceptionHandler {
         return buildErrorResponse("Request body is missing", HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         return buildErrorResponse("You do not have permission to access this resource", HttpStatus.FORBIDDEN);
     }
 

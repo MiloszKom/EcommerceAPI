@@ -8,7 +8,6 @@ import com.example.product_service.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -21,7 +20,6 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductDetailsDTO> createProduct(@Valid @RequestBody ProductRequest product) {
         ProductDetailsDTO created = service.createProduct(product);
@@ -43,7 +41,6 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductDetailsDTO> updateProduct(
             @PathVariable Long id,
@@ -53,12 +50,12 @@ public class ProductController {
         return ResponseEntity.ok(updated);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         service.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
 
     @PutMapping("/{productId}/reduce-stock")
     public ResponseEntity<Void> reduceStock(@PathVariable Long productId, @RequestBody StockUpdateRequest request) {

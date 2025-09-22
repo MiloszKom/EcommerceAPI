@@ -1,0 +1,36 @@
+spring:
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user_route
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/auth/**,/api/users/**
+              filters:
+                - AddRequestHeader=X-Request-Foo,Bar
+
+            - id: product_route
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/products/**
+              filters:
+                - AddRequestHeader=X-Request-Foo,Bar
+
+            - id: cart_route
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/cart/**
+              filters:
+                - AddRequestHeader=X-Request-Foo,Bar
+
+            - id: order_route
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/orders/**
+              filters:
+                - AddRequestHeader=X-Request-Foo,Bar

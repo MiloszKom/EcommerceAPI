@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,8 +35,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
     }
 
-
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<UserSummaryDTO>> getUsers() {
         List<UserSummaryDTO> users = userService.findAll();

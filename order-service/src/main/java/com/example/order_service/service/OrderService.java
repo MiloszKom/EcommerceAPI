@@ -2,18 +2,16 @@ package com.example.order_service.service;
 
 import com.example.order_service.client.CartClient;
 import com.example.order_service.client.ProductClient;
-import com.example.order_service.config.SecurityUtils;
 import com.example.order_service.dto.*;
-import com.example.order_service.exception.types.ConflictException;
-import com.example.order_service.exception.types.NotFoundException;
-import com.example.order_service.exception.types.ServiceCommunicationException;
-import com.example.order_service.exception.types.UnauthorizedException;
+import com.example.order_service.exception.types.*;
 import com.example.order_service.mapper.OrderMapper;
 import com.example.order_service.model.Order;
 import com.example.order_service.model.OrderItem;
 import com.example.order_service.model.OrderStatus;
 import com.example.order_service.repository.OrderRepository;
+import com.example.order_service.config.SecurityUtils;
 import feign.FeignException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +32,9 @@ public class OrderService {
     @Autowired
     ProductClient productClient;
 
+    @Autowired
+    private HttpServletRequest request;
+
     private Order getOrder(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Cannot find order with id: " + orderId));
@@ -41,7 +42,7 @@ public class OrderService {
 
     @Transactional
     public OrderDetailsDTO createOrder() {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId(request);
 
         CartDetailsDTO cart;
 
@@ -100,7 +101,7 @@ public class OrderService {
     }
 
     public OrderDetailsDTO payOrder(Long orderId) {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
+        Long currentUserId = SecurityUtils.getCurrentUserId(request);
         Order order = getOrder(orderId);
 
         if (!order.getUserId().equals(currentUserId)) {
@@ -118,7 +119,9 @@ public class OrderService {
     }
 
     public List<OrderSummaryDTO> getUserOrders() {
-        Long userId = SecurityUtils.getCurrentUserId();
+        String userIdHeader = request.getHeader("userId");
+        Long userId = Long.parseLong(userIdHeader);
+
         List<Order> orders = orderRepository.findByUserId(userId);
         return orders.stream()
                 .map(OrderMapper::toSummaryDTO)
@@ -126,8 +129,8 @@ public class OrderService {
     }
 
     public OrderDetailsDTO getOrderDetails(Long orderId) {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-        String role = SecurityUtils.getCurrentUserRole();
+        Long currentUserId = SecurityUtils.getCurrentUserId(request);
+        String role = SecurityUtils.getCurrentUserRole(request);
 
         Order order = getOrder(orderId);
 
@@ -140,12 +143,14 @@ public class OrderService {
 
     @Transactional
     public OrderDetailsDTO cancelOrder(Long orderId) {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-        String role = SecurityUtils.getCurrentUserRole();
+        Long currentUserId = SecurityUtils.getCurrentUserId(request);
+        String role = SecurityUtils.getCurrentUserRole(request);
+
+
         Order order = getOrder(orderId);
 
         if (!order.getUserId().equals(currentUserId) && !"ROLE_ADMIN".equals(role)) {
-            throw new IllegalArgumentException("You do not have permission to cancel this order.");
+            throw new AccessDeniedException("You do not have permission to cancel this order.");
         }
 
         if (order.getStatus() != OrderStatus.PENDING) {

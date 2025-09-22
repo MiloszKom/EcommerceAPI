@@ -1,46 +1,22 @@
 package com.example.order_service.config;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class SecurityUtils {
-    public static Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Long userId) {
-            return userId;
+    public static Long getCurrentUserId(HttpServletRequest request) {
+        String userIdHeader = request.getHeader("userId");
+        if (userIdHeader == null) {
+            throw new RuntimeException("No userId header found");
         }
-        throw new RuntimeException("No authenticated userId found");
+        return Long.parseLong(userIdHeader);
     }
 
-    public static String getCurrentUserToken() {
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs == null) {
-            throw new RuntimeException("No request context available");
+    public static String getCurrentUserRole(HttpServletRequest request) {
+        String roleHeader = request.getHeader("role");
+        if (roleHeader == null) {
+            throw new RuntimeException("No role header found");
         }
-
-        HttpServletRequest request = attrs.getRequest();
-
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-
-        throw new RuntimeException("No JWT token found in request");
-    }
-
-    public static String getCurrentUserRole() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getAuthorities() != null) {
-            return authentication.getAuthorities().stream()
-                    .findFirst()
-                    .map(GrantedAuthority::getAuthority)
-                    .orElseThrow(() -> new RuntimeException("No role found for current user"));
-        }
-        throw new RuntimeException("No authentication available to determine role");
+        return roleHeader;
     }
 }

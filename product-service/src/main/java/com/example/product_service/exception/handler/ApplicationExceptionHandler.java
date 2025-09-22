@@ -6,7 +6,6 @@ import com.example.product_service.exception.types.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -36,11 +35,6 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleEmptyBody(HttpMessageNotReadableException ex) {
         return buildErrorResponse("Request body is missing", HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
-        return buildErrorResponse("You do not have permission to access this resource", HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ProductNotFoundException.class)

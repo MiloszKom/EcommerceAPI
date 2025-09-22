@@ -13,6 +13,7 @@ import com.example.cart_service.model.Cart;
 import com.example.cart_service.model.CartItem;
 import com.example.cart_service.repository.CartRepository;
 import feign.FeignException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,9 @@ public class CartService {
     @Autowired
     private ProductClient productClient;
 
+    @Autowired
+    HttpServletRequest servletRequest;
+
     public Cart getOrCreateCart(Long userId) {
         return repository.findByUserId(userId)
                 .orElseGet(() -> {
@@ -36,7 +40,7 @@ public class CartService {
     }
 
     public CartDetailsDTO getUserCart() {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId(servletRequest);
         Cart cart = getOrCreateCart(userId);
 
         return CartMapper.toCartDetailsDTO(cart);
@@ -44,7 +48,7 @@ public class CartService {
 
     @Transactional
     public CartDetailsDTO addProduct(AddToCartRequest request) {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId(servletRequest);
         Cart cart = getOrCreateCart(userId);
 
         ProductDTO product;
@@ -76,7 +80,7 @@ public class CartService {
 
     @Transactional
     public CartDetailsDTO updateQuantity(AddToCartRequest request) {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId(servletRequest);
         Cart cart = getOrCreateCart(userId);
 
         CartItem cartItem = cart.getItems().stream()
@@ -95,7 +99,7 @@ public class CartService {
 
     @Transactional
     public void removeProduct(Long productId) {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId(servletRequest);
         Cart cart = getOrCreateCart(userId);
 
         CartItem cartItem = cart.getItems().stream()
@@ -110,7 +114,7 @@ public class CartService {
     }
 
     public void clearCart() {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId(servletRequest);
         Cart cart = getOrCreateCart(userId);
         cart.getItems().clear();
         repository.save(cart);
