@@ -12,11 +12,11 @@ public interface ProductClient {
     @GetMapping("/api/products/{id}")
     ProductDTO getProductById(@PathVariable("id") long id);
 
-    @PutMapping("/api/products/{productId}/reduce-stock")
+    @PutMapping("/internal/products/{productId}/reduce-stock")
     void reduceProductStock(@PathVariable("productId") Long productId,
                             @RequestBody StockUpdateRequest request);
 
-    @PutMapping("/api/products/{productId}/increase-stock")
+    @PutMapping("/internal/products/{productId}/increase-stock")
     void increaseProductStock(@PathVariable("productId") Long productId,
                             @RequestBody StockUpdateRequest request);
 }

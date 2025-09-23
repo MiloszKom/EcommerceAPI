@@ -11,22 +11,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class DataInitializer {
 
-    @Value("${user.username}")
+    @Value("${app.user.username}")
     private String userUsername;
 
-    @Value("${user.email}")
+    @Value("${app.user.email}")
     private String userEmail;
 
-    @Value("${user.password}")
+    @Value("${app.user.password}")
     private String userPassword;
 
-    @Value("${admin.username}")
+    @Value("${app.admin.username}")
     private String adminUsername;
 
-    @Value("${admin.email}")
+    @Value("${app.admin.email}")
     private String adminEmail;
 
-    @Value("${admin.password}")
+    @Value("${app.admin.password}")
     private String adminPassword;
 
     @Bean

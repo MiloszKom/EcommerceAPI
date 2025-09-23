@@ -1,6 +1,6 @@
 server:
   port: 8081
-  address: 0.0.0.0
+  address: 127.0.0.1
 
 spring:
   application:
@@ -20,3 +20,17 @@ spring:
     user:
       name: ${SPRING_SECURITY_USER_NAME}
       password: ${SPRING_SECURITY_USER_PASSWORD}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+  gateway:
+    secret: ${GATEWAY_SECRET}
+  user:
+    username: ${USER_USERNAME}
+    email: ${USER_EMAIL}
+    password: ${USER_PASSWORD}
+  admin:
+    username: ${ADMIN_USERNAME}
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}

@@ -2,6 +2,9 @@ spring:
   main:
     web-application-type: reactive
 
+  gateway:
+    secret: ${GATEWAY_SECRET}
+
   cloud:
     gateway:
       server:
@@ -12,25 +15,25 @@ spring:
               predicates:
                 - Path=/api/auth/**,/api/users/**
               filters:
-                - AddRequestHeader=X-Request-Foo,Bar
+                - AddRequestHeader=X-Internal-Secret,${gateway.secret}
 
             - id: product_route
               uri: http://localhost:8082
               predicates:
                 - Path=/api/products/**
               filters:
-                - AddRequestHeader=X-Request-Foo,Bar
+                - AddRequestHeader=X-Internal-Secret,${gateway.secret}
 
             - id: cart_route
               uri: http://localhost:8083
               predicates:
                 - Path=/api/cart/**
               filters:
-                - AddRequestHeader=X-Request-Foo,Bar
+                - AddRequestHeader=X-Internal-Secret,${gateway.secret}
 
             - id: order_route
               uri: http://localhost:8084
               predicates:
                 - Path=/api/orders/**
               filters:
-                - AddRequestHeader=X-Request-Foo,Bar
+                - AddRequestHeader=X-Internal-Secret,${gateway.secret}

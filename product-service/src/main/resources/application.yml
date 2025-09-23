@@ -20,3 +20,7 @@ spring:
     user:
       name: ${SPRING_SECURITY_USER_NAME}
       password: ${SPRING_SECURITY_USER_PASSWORD}
+
+app:
+  gateway:
+    secret: ${GATEWAY_SECRET}

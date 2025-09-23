@@ -1,6 +1,7 @@
 package com.example.user_service.exception.handler;
 
 import com.example.user_service.exception.response.ErrorResponse;
+import com.example.user_service.exception.types.MissingGatewayHeadersException;
 import com.example.user_service.exception.types.UsernameNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,12 @@ public class ApplicationExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(MissingGatewayHeadersException.class)
+    public ResponseEntity<ErrorResponse> handleMissingGatewayHeadersException(Exception ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex) {

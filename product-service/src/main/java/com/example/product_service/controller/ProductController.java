@@ -57,15 +57,15 @@ public class ProductController {
     }
 
 
-    @PutMapping("/{productId}/reduce-stock")
-    public ResponseEntity<Void> reduceStock(@PathVariable Long productId, @RequestBody StockUpdateRequest request) {
-        service.reduceStock(productId, request.quantity());
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{productId}/increase-stock")
-    public ResponseEntity<Void> increaseStock(@PathVariable Long productId, @RequestBody StockUpdateRequest request) {
-        service.increaseStock(productId, request.quantity());
-        return ResponseEntity.ok().build();
-    }
+//    @PutMapping("/{productId}/reduce-stock")
+//    public ResponseEntity<Void> reduceStock(@PathVariable Long productId, @RequestBody StockUpdateRequest request) {
+//        service.reduceStock(productId, request.quantity());
+//        return ResponseEntity.ok().build();
+//    }
+//
+//    @PutMapping("/{productId}/increase-stock")
+//    public ResponseEntity<Void> increaseStock(@PathVariable Long productId, @RequestBody StockUpdateRequest request) {
+//        service.increaseStock(productId, request.quantity());
+//        return ResponseEntity.ok().build();
+//    }
 }
