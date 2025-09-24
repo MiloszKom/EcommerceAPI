@@ -1,10 +1,7 @@
 package com.example.cart_service.exception.handler;
 
-import com.example.cart_service.exception.types.AccessDeniedException;
-import com.example.cart_service.exception.types.NotFoundException;
+import com.example.cart_service.exception.types.*;
 import com.example.cart_service.exception.response.ErrorResponse;
-import com.example.cart_service.exception.types.ConflictException;
-import com.example.cart_service.exception.types.ServiceCommunicationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -61,12 +58,17 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(ServiceCommunicationException.class)
     public ResponseEntity<ErrorResponse> handleServiceCommunicationException(Exception ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_GATEWAY);
+        return buildErrorResponse(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex) {
         return buildErrorResponse("The requested resource does not exist. Check your URL and HTTP method.", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RemoteServiceException.class)
+    public ResponseEntity<ErrorResponse> handleRemoteService(RemoteServiceException ex) {
+        return buildErrorResponse(ex.getMessage(), ex.getStatusCode());
     }
 
     @ExceptionHandler(Exception.class)

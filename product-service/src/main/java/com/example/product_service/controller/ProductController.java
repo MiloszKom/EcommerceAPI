@@ -3,7 +3,6 @@ package com.example.product_service.controller;
 import com.example.product_service.dto.ProductDetailsDTO;
 import com.example.product_service.dto.ProductRequest;
 import com.example.product_service.dto.ProductSummaryDTO;
-import com.example.product_service.dto.StockUpdateRequest;
 import com.example.product_service.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,11 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    private ProductService service;
+    private final ProductService service;
+
+    public ProductController(ProductService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<ProductDetailsDTO> createProduct(@Valid @RequestBody ProductRequest product) {
@@ -55,17 +58,4 @@ public class ProductController {
         service.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
-
-
-//    @PutMapping("/{productId}/reduce-stock")
-//    public ResponseEntity<Void> reduceStock(@PathVariable Long productId, @RequestBody StockUpdateRequest request) {
-//        service.reduceStock(productId, request.quantity());
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    @PutMapping("/{productId}/increase-stock")
-//    public ResponseEntity<Void> increaseStock(@PathVariable Long productId, @RequestBody StockUpdateRequest request) {
-//        service.increaseStock(productId, request.quantity());
-//        return ResponseEntity.ok().build();
-//    }
 }

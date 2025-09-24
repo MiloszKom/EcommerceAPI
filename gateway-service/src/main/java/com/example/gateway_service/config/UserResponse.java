@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class UserResponse implements UserDetails {
     private String userId;

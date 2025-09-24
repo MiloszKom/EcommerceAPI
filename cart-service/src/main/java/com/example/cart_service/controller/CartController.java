@@ -1,10 +1,11 @@
 package com.example.cart_service.controller;
 
+import com.example.cart_service.config.SecurityUtils;
 import com.example.cart_service.dto.AddToCartRequest;
 import com.example.cart_service.dto.CartDetailsDTO;
 import com.example.cart_service.service.CartService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,38 +13,50 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/cart")
 public class CartController {
 
-    @Autowired
-    private CartService service;
+    private final CartService service;
+
+    public CartController(CartService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public ResponseEntity<CartDetailsDTO> getUserCart() {
-        CartDetailsDTO cart = service.getUserCart();
-        return ResponseEntity.ok(cart);
+    public ResponseEntity<CartDetailsDTO> getUserCart(HttpServletRequest request) {
+        Long userId = SecurityUtils.getCurrentUserId(request);
+        return ResponseEntity.ok(service.getUserCart(userId));
     }
 
     @PostMapping("/add")
-    public ResponseEntity<CartDetailsDTO> addProductToCart(@Valid @RequestBody AddToCartRequest request) {
-        CartDetailsDTO updatedCart = service.addProduct(request);
-        return ResponseEntity.ok(updatedCart);
+    public ResponseEntity<CartDetailsDTO> addProductToCart(
+            HttpServletRequest request,
+            @Valid @RequestBody AddToCartRequest addRequest) {
+
+        Long userId = SecurityUtils.getCurrentUserId(request);
+        return ResponseEntity.ok(service.addProduct(userId, addRequest));
     }
 
-
     @PutMapping
-    public ResponseEntity<CartDetailsDTO> updateCartItem(@Valid @RequestBody AddToCartRequest request) {
-        CartDetailsDTO updatedCart = service.updateQuantity(request);
-        return ResponseEntity.ok(updatedCart);
+    public ResponseEntity<CartDetailsDTO> updateCartItem(
+            HttpServletRequest request,
+            @Valid @RequestBody AddToCartRequest updateRequest) {
+
+        Long userId = SecurityUtils.getCurrentUserId(request);
+        return ResponseEntity.ok(service.updateQuantity(userId, updateRequest));
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Void> removeCartItem(@PathVariable Long productId) {
-        service.removeProduct(productId);
+    public ResponseEntity<Void> removeCartItem(
+            HttpServletRequest request,
+            @PathVariable Long productId) {
+
+        Long userId = SecurityUtils.getCurrentUserId(request);
+        service.removeProduct(userId, productId);
         return ResponseEntity.noContent().build();
     }
 
-
     @DeleteMapping("/clear")
-    public ResponseEntity<Void> clearCart() {
-        service.clearCart();
+    public ResponseEntity<Void> clearCart(HttpServletRequest request) {
+        Long userId = SecurityUtils.getCurrentUserId(request);
+        service.clearCart(userId);
         return ResponseEntity.noContent().build();
     }
 }

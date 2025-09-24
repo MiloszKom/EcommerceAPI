@@ -1,7 +1,5 @@
 package com.example.order_service.service;
 
-import com.example.order_service.client.CartClient;
-import com.example.order_service.client.ProductClient;
 import com.example.order_service.dto.*;
 import com.example.order_service.exception.types.*;
 import com.example.order_service.mapper.OrderMapper;
@@ -9,10 +7,6 @@ import com.example.order_service.model.Order;
 import com.example.order_service.model.OrderItem;
 import com.example.order_service.model.OrderStatus;
 import com.example.order_service.repository.OrderRepository;
-import com.example.order_service.config.SecurityUtils;
-import feign.FeignException;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +17,19 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
 
-    @Autowired
-    OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+    private final CartClientService cartClientService;
+    private final ProductClientService productClientService;
 
-    @Autowired
-    CartClient cartClient;
-
-    @Autowired
-    ProductClient productClient;
-
-    @Autowired
-    private HttpServletRequest request;
+    public OrderService (
+            OrderRepository orderRepository,
+            CartClientService cartClientService,
+            ProductClientService productClientService
+    ) {
+        this.orderRepository = orderRepository;
+        this.cartClientService = cartClientService;
+        this.productClientService = productClientService;
+    }
 
     private Order getOrder(Long orderId) {
         return orderRepository.findById(orderId)
@@ -41,16 +37,8 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDetailsDTO createOrder() {
-        Long userId = SecurityUtils.getCurrentUserId(request);
-
-        CartDetailsDTO cart;
-
-        try {
-            cart = cartClient.getUserCart();
-        } catch (Exception e) {
-            throw new ServiceCommunicationException("Error communicating with Cart Service");
-        }
+    public OrderDetailsDTO createOrder(Long userId) {
+        CartDetailsDTO cart = cartClientService.getUserCart();
 
         if (cart.items().isEmpty()) {
             throw new IllegalArgumentException("Cannot create order: cart is empty.");
@@ -60,18 +48,11 @@ public class OrderService {
         order.setUserId(userId);
 
         List<OrderItem> orderItems = cart.items().stream().map(cartItem -> {
-            ProductDTO product = productClient.getProductById(cartItem.productId());
-
-            try {
-                productClient.reduceProductStock(
-                        cartItem.productId(),
-                        new StockUpdateRequest(cartItem.quantity())
-                );
-            } catch (FeignException.Conflict e) {
-                throw new ConflictException(
-                        "Not enough stock for product ID " + cartItem.productId()
-                );
-            }
+            ProductDTO product = productClientService.getProductById(cartItem.productId());
+            productClientService.reduceProductStock(
+                    cartItem.productId(),
+                    new StockUpdateRequest(cartItem.quantity())
+            );
 
             OrderItem item = new OrderItem();
             item.setProductId(product.id());
@@ -91,17 +72,12 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        try {
-            cartClient.clearCart();
-        } catch (Exception e) {
-            throw new ServiceCommunicationException("Error communicating with Cart Service");
-        }
+        cartClientService.clearCart();
 
         return OrderMapper.toDetailsDTO(savedOrder);
     }
 
-    public OrderDetailsDTO payOrder(Long orderId) {
-        Long currentUserId = SecurityUtils.getCurrentUserId(request);
+    public OrderDetailsDTO payOrder(Long currentUserId, Long orderId) {
         Order order = getOrder(orderId);
 
         if (!order.getUserId().equals(currentUserId)) {
@@ -118,20 +94,14 @@ public class OrderService {
         return OrderMapper.toDetailsDTO(completedOrder);
     }
 
-    public List<OrderSummaryDTO> getUserOrders() {
-        String userIdHeader = request.getHeader("userId");
-        Long userId = Long.parseLong(userIdHeader);
-
+    public List<OrderSummaryDTO> getUserOrders(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
         return orders.stream()
                 .map(OrderMapper::toSummaryDTO)
                 .collect(Collectors.toList());
     }
 
-    public OrderDetailsDTO getOrderDetails(Long orderId) {
-        Long currentUserId = SecurityUtils.getCurrentUserId(request);
-        String role = SecurityUtils.getCurrentUserRole(request);
-
+    public OrderDetailsDTO getOrderDetails(Long currentUserId, String role, Long orderId) {
         Order order = getOrder(orderId);
 
         if (!order.getUserId().equals(currentUserId) && !"ROLE_ADMIN".equals(role)) {
@@ -142,11 +112,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDetailsDTO cancelOrder(Long orderId) {
-        Long currentUserId = SecurityUtils.getCurrentUserId(request);
-        String role = SecurityUtils.getCurrentUserRole(request);
-
-
+    public OrderDetailsDTO cancelOrder(Long currentUserId, String role, Long orderId) {
         Order order = getOrder(orderId);
 
         if (!order.getUserId().equals(currentUserId) && !"ROLE_ADMIN".equals(role)) {
@@ -160,16 +126,10 @@ public class OrderService {
         }
 
         for (OrderItem item : order.getItems()) {
-            try {
-                productClient.increaseProductStock(
-                        item.getProductId(),
-                        new StockUpdateRequest(item.getQuantity())
-                );
-            } catch (FeignException e) {
-                throw new ServiceCommunicationException(
-                        "Failed to update stock for product ID " + item.getProductId()
-                );
-            }
+            productClientService.increaseProductStock(
+                    item.getProductId(),
+                    new StockUpdateRequest(item.getQuantity())
+            );
         }
 
         order.setStatus(OrderStatus.CANCELLED);

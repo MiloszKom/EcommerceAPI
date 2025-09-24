@@ -8,7 +8,6 @@ import com.example.product_service.exception.types.ProductNotFoundException;
 import com.example.product_service.mapper.ProductMapper;
 import com.example.product_service.model.Product;
 import com.example.product_service.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +17,11 @@ import java.util.List;
 @Service
 public class ProductService {
 
-    @Autowired
-    private ProductRepository repository;
+    private final ProductRepository repository;
+
+    public ProductService(ProductRepository repository) {
+        this.repository = repository;
+    }
 
     public Product getProduct(long productId) {
         return repository.findById(productId)

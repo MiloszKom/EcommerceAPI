@@ -16,6 +16,10 @@ spring:
                 - Path=/api/auth/**,/api/users/**
               filters:
                 - AddRequestHeader=X-Internal-Secret,${gateway.secret}
+                - name: CircuitBreaker
+                  args:
+                    name: defaultCircuitBreaker
+                    fallbackUri: forward:/fallback/users
 
             - id: product_route
               uri: http://localhost:8082
@@ -23,6 +27,10 @@ spring:
                 - Path=/api/products/**
               filters:
                 - AddRequestHeader=X-Internal-Secret,${gateway.secret}
+                - name: CircuitBreaker
+                  args:
+                    name: defaultCircuitBreaker
+                    fallbackUri: forward:/fallback/products
 
             - id: cart_route
               uri: http://localhost:8083
@@ -30,6 +38,10 @@ spring:
                 - Path=/api/cart/**
               filters:
                 - AddRequestHeader=X-Internal-Secret,${gateway.secret}
+#                - name: CircuitBreaker
+#                  args:
+#                    name: defaultCircuitBreaker
+#                    fallbackUri: forward:/fallback/cart
 
             - id: order_route
               uri: http://localhost:8084
@@ -37,3 +49,21 @@ spring:
                 - Path=/api/orders/**
               filters:
                 - AddRequestHeader=X-Internal-Secret,${gateway.secret}
+#                - name: CircuitBreaker
+#                  args:
+#                    name: defaultCircuitBreaker
+#                    fallbackUri: forward:/fallback/orders
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      defaultCircuitBreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    instances:
+      defaultCircuitBreaker:
+        maxRetryAttempts: 3
+        waitDuration: 500ms

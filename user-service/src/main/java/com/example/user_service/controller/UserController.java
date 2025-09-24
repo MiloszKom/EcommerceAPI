@@ -1,11 +1,13 @@
 package com.example.user_service.controller;
 
+import com.example.user_service.config.SecurityUtils;
 import com.example.user_service.dto.LoginRequest;
 import com.example.user_service.dto.RegisterRequest;
 import com.example.user_service.dto.UserDetailsDTO;
 import com.example.user_service.dto.UserSummaryDTO;
 import com.example.user_service.service.AuthService;
 import com.example.user_service.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,17 +20,18 @@ import java.util.List;
 @RequestMapping("/api")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final AuthService authService;
 
-    @Autowired
-    private AuthService authService;
+    public UserController (UserService userService, AuthService authService) {
+        this.userService = userService;
+        this.authService = authService;
+    }
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
-
 
     @PostMapping("/auth/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -42,8 +45,9 @@ public class UserController {
     }
 
     @GetMapping("/users/me")
-    public ResponseEntity<UserDetailsDTO> getCurrentUser() {
-        UserDetailsDTO user = userService.getCurrentUser();
+    public ResponseEntity<UserDetailsDTO> getCurrentUser(HttpServletRequest request) {
+        Long userId = SecurityUtils.getCurrentUserId(request);
+        UserDetailsDTO user = userService.getCurrentUser(userId);
         return ResponseEntity.ok(user);
     }
 }

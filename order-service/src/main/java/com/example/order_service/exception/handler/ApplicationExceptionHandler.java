@@ -63,12 +63,17 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(ServiceCommunicationException.class)
     public ResponseEntity<ErrorResponse> handleServiceCommunicationException(Exception ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_GATEWAY);
+        return buildErrorResponse(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex) {
         return buildErrorResponse("The requested resource does not exist. Check your URL and HTTP method.", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RemoteServiceException.class)
+    public ResponseEntity<ErrorResponse> handleRemoteService(RemoteServiceException ex) {
+        return buildErrorResponse(ex.getMessage(), ex.getStatusCode());
     }
 
     @ExceptionHandler(Exception.class)
