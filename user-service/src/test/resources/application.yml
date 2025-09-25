@@ -11,15 +11,16 @@ spring:
       name: testuser
       password: testpassword
 
-user:
-  username: normaluser
-  email: myuser@example.com
-  password: password
-
-admin:
-  username: adminuser
-  email: admin@example.com
-  password: password
-
-jwt:
-  secret: testsecret
+app:
+  jwt:
+    secret: testsecret
+  gateway:
+    secret: testsecret
+  user:
+    username: normaluser
+    email: myuser@example.com
+    password: password
+  admin:
+    username: adminuser
+    email: admin@example.com
+    password: password

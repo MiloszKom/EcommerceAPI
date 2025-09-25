@@ -1,8 +1,8 @@
 app:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: testsecret
   gateway:
-    secret: ${GATEWAY_SECRET}
+    secret: testsecret
 
 spring:
   main:
@@ -10,8 +10,8 @@ spring:
 
   security:
     user:
-      name: ${SPRING_SECURITY_USER_NAME}
-      password: ${SPRING_SECURITY_USER_PASSWORD}
+      name: testuser
+      password: testpassword
 
   cloud:
     gateway:
@@ -19,7 +19,7 @@ spring:
         webflux:
           routes:
             - id: user_route
-              uri: http://${USER_BASE_URL}:8081
+              uri: http://localhost:8081
               predicates:
                 - Path=/api/auth/**,/api/users/**
               filters:
@@ -30,7 +30,7 @@ spring:
                     fallbackUri: forward:/fallback/users
 
             - id: product_route
-              uri: http://${PRODUCT_BASE_URL}:8082
+              uri: http://localhost:8082
               predicates:
                 - Path=/api/products/**
               filters:
@@ -41,14 +41,14 @@ spring:
                     fallbackUri: forward:/fallback/products
 
             - id: cart_route
-              uri: http://${CART_BASE_URL}:8083
+              uri: http://localhost:8083
               predicates:
                 - Path=/api/cart/**
               filters:
                 - AddRequestHeader=X-Internal-Secret,${app.gateway.secret}
 
             - id: order_route
-              uri: http://${ORDER_BASE_URL}:8084
+              uri: http://localhost:8084
               predicates:
                 - Path=/api/orders/**
               filters:

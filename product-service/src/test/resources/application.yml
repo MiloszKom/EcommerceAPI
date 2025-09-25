@@ -11,5 +11,6 @@ spring:
       name: testuser
       password: testpassword
 
-jwt:
-  secret: testsecret
+app:
+  gateway:
+    secret: testsecret

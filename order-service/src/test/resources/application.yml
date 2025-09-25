@@ -11,9 +11,6 @@ spring:
       name: testuser
       password: testpassword
 
-jwt:
-  secret: testsecret
-
 product:
   service:
     url: http://localhost:8082/
@@ -21,3 +18,22 @@ product:
 cart:
   service:
     url: http://localhost:8083/
+
+app:
+  gateway:
+    secret: testsecret
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      productServiceCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    instances:
+      productServiceRetry:
+        maxRetryAttempts: 3
+        waitDuration: 500ms

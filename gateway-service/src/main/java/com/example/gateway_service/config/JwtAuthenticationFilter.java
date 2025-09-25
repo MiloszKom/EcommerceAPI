@@ -24,7 +24,6 @@ public class JwtAuthenticationFilter implements WebFilter {
 
     private final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtTokenHelper jwtTokenHelper;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JwtAuthenticationFilter(JwtTokenHelper jwtTokenHelper) {
         this.jwtTokenHelper = jwtTokenHelper;
