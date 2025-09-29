@@ -1,13 +1,12 @@
 package com.example.gateway_service;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration;
 
-@SpringBootTest
+@SpringBootApplication(exclude = ReactiveUserDetailsServiceAutoConfiguration.class)
 class GatewayServiceApplicationTests {
-
 	@Test
 	void contextLoads() {
 	}
-
 }

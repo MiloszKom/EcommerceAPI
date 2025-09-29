@@ -1,9 +1,8 @@
 package com.example.user_service.service;
 
-import com.example.user_service.config.SecurityUtils;
 import com.example.user_service.dto.UserDetailsDTO;
 import com.example.user_service.dto.UserSummaryDTO;
-import com.example.user_service.exception.types.UsernameNotFoundException;
+import com.example.user_service.exception.types.UserNotFoundException;
 import com.example.user_service.mapper.UserMapper;
 import com.example.user_service.model.User;
 import com.example.user_service.repository.UserRepository;
@@ -22,7 +21,7 @@ public class UserService {
 
     private User getUser(Long userId) {
         return repository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public UserDetailsDTO getCurrentUser(Long userId) {

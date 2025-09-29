@@ -2,7 +2,6 @@ package com.example.cart_service.model;
 
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 

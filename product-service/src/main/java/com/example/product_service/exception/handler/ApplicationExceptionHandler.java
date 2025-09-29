@@ -6,6 +6,7 @@ import com.example.product_service.exception.types.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -56,6 +57,14 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex) {
         return buildErrorResponse("The requested resource does not exist. Check your URL and HTTP method.", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+        return buildErrorResponse(
+                "HTTP method not allowed for this endpoint. Check your URL and HTTP method.",
+                HttpStatus.METHOD_NOT_ALLOWED
+        );
     }
 
     @ExceptionHandler(Exception.class)

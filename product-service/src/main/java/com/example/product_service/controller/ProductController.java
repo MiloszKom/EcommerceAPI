@@ -6,6 +6,7 @@ import com.example.product_service.dto.ProductSummaryDTO;
 import com.example.product_service.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,6 @@ public class ProductController {
         this.service = service;
     }
 
-    @PostMapping
-    public ResponseEntity<ProductDetailsDTO> createProduct(@Valid @RequestBody ProductRequest product) {
-        ProductDetailsDTO created = service.createProduct(product);
-        return ResponseEntity.ok(created);
-    }
-
     @GetMapping
     public ResponseEntity<List<ProductSummaryDTO>> getProducts(
             @RequestParam(required = false) String category,
@@ -36,6 +31,12 @@ public class ProductController {
     ) {
         List<ProductSummaryDTO> products = service.getProducts(category, maxPrice);
         return ResponseEntity.ok(products);
+    }
+
+    @PostMapping
+    public ResponseEntity<ProductDetailsDTO> createProduct(@Valid @RequestBody ProductRequest product) {
+        ProductDetailsDTO created = service.createProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping("/{id}")

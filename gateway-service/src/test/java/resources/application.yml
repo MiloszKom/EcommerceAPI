@@ -1,17 +1,17 @@
 app:
   jwt:
-    secret: testsecret
+    secret: your-very-secret-key-that-is-at-least-32-characters-long
   gateway:
     secret: testsecret
 
 spring:
-  main:
-    web-application-type: reactive
-
   security:
     user:
       name: testuser
       password: testpassword
+
+  main:
+    web-application-type: reactive
 
   cloud:
     gateway:

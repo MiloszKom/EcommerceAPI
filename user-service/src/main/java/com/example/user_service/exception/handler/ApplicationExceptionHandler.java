@@ -1,8 +1,9 @@
 package com.example.user_service.exception.handler;
 
 import com.example.user_service.exception.response.ErrorResponse;
+import com.example.user_service.exception.types.ConflictException;
 import com.example.user_service.exception.types.MissingGatewayHeadersException;
-import com.example.user_service.exception.types.UsernameNotFoundException;
+import com.example.user_service.exception.types.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -49,7 +50,7 @@ public class ApplicationExceptionHandler {
         return buildErrorResponse("Invalid username or password", HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
+    @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
@@ -59,11 +60,15 @@ public class ApplicationExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflictException(Exception ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(MissingGatewayHeadersException.class)
     public ResponseEntity<ErrorResponse> handleMissingGatewayHeadersException(Exception ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
-
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex) {

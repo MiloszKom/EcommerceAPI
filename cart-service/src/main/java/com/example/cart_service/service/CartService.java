@@ -60,6 +60,7 @@ public class CartService {
 
     @Transactional
     public CartDetailsDTO updateQuantity(Long userId, AddToCartRequest request) {
+
         Cart cart = getOrCreateCart(userId);
 
         CartItem cartItem = cart.getItems().stream()

@@ -5,7 +5,7 @@ import com.example.user_service.dto.AuthResponse;
 import com.example.user_service.dto.LoginRequest;
 import com.example.user_service.dto.RegisterRequest;
 import com.example.user_service.exception.types.ConflictException;
-import com.example.user_service.exception.types.UsernameNotFoundException;
+import com.example.user_service.exception.types.UserNotFoundException;
 import com.example.user_service.model.User;
 import com.example.user_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class AuthService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public AuthResponse login(LoginRequest authRequest) {
@@ -44,7 +44,7 @@ public class AuthService {
         );
 
         User user = userRepository.findByUsername(authRequest.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String token = jwtService.generateToken(user);
 

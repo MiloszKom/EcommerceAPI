@@ -13,7 +13,7 @@ spring:
 
 app:
   jwt:
-    secret: testsecret
+    secret: your-very-secret-key-that-is-at-least-32-characters-long
   gateway:
     secret: testsecret
   user:

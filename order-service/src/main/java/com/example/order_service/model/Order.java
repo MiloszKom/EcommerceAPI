@@ -15,9 +15,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Instead of @ManyToOne User
     @Column(nullable = false)
-    private Long userId; // reference to user service
+    private Long userId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
@@ -39,6 +38,20 @@ public class Order {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // --- constructors  ---
+
+    public Order() {}
+
+    public Order(Long userId, BigDecimal totalPrice, OrderStatus status, List<OrderItem> items) {
+        this.userId = userId;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.items = items;
+        if (items != null) {
+            items.forEach(i -> i.setOrder(this));
+        }
     }
 
     // --- getters & setters ---

@@ -1,13 +1,11 @@
 package com.example.order_service.controller;
 
-import com.example.order_service.client.ProductClient;
 import com.example.order_service.config.SecurityUtils;
 import com.example.order_service.dto.OrderDetailsDTO;
 import com.example.order_service.dto.OrderSummaryDTO;
 import com.example.order_service.model.OrderStatus;
 import com.example.order_service.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

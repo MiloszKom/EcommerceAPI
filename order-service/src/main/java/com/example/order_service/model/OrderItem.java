@@ -20,6 +20,17 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    // --- constructors  ---
+
+    public OrderItem () {}
+
+    public OrderItem(Long productId, String productName, int quantity, BigDecimal priceAtPurchase) {
+        this.productId = productId;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.priceAtPurchase = priceAtPurchase;
+    }
+
     // --- getters & setters ---
 
     public Long getId() {
