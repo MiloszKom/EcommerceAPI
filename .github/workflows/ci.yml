@@ -23,7 +23,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
       - name: Build and test ${{ matrix.service }}
         working-directory: ${{ matrix.service }}
-        run: |
-          ./mvnw clean test
+        run: ./mvnw clean test
