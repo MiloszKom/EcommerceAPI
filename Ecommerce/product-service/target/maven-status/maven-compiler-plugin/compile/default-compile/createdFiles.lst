@@ -1,0 +1,17 @@
+com\example\product_service\controller\InternalProductController.class
+com\example\product_service\entity\Product.class
+com\example\product_service\dto\ProductRequestDto.class
+com\example\product_service\ProductServiceApplication.class
+com\example\product_service\controller\ProductController.class
+com\example\product_service\exception\ConflictException.class
+com\example\product_service\dto\ErrorResponseDto.class
+com\example\product_service\dto\StockUpdateRequest.class
+com\example\product_service\dto\ProductSummaryDto.class
+com\example\product_service\exception\GlobalExceptionHandler.class
+com\example\product_service\exception\ResourceNotFoundException.class
+com\example\product_service\mapper\ProductMapper.class
+com\example\product_service\service\IProductService.class
+com\example\product_service\dto\ProductDetailsDto.class
+com\example\product_service\entity\BaseEntity.class
+com\example\product_service\service\impl\ProductServiceImpl.class
+com\example\product_service\repository\ProductRepository.class

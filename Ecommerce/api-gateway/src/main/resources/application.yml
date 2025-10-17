@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: "api-gateway"
+  config:
+    import: "configserver:${CONFIG_SERVER_URI:http://localhost:8888}/"
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://localhost:7080/realms/ecommerce-realm"
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lower-case-service-id: true
+          httpclient:
+            connect-timeout: 1000
+            response-timeout: 5s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"
+    health:
+      livenessState:
+        enabled: true
+      readinessState:
+        enabled: true
+    endpoint:
+      shutdown:
+        enabled: true
+      health:
+        probes:
+          enabled: true
+  endpoint:
+    gateway:
+      access: unrestricted
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "gatewayserver"
+    description: "Gateway Server for Ecommerce Application"
+    version: "1.0"
+
+logging:
+  level:
+    org.springframework.security: DEBUG

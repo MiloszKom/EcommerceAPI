@@ -1,0 +1,232 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.0
+    container_name: keycloak
+    ports:
+      - "7080:8080"
+    environment:
+      KC_DB: dev-file
+      KC_DB_FILE: /opt/keycloak/data/keycloak
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command: start-dev
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  configserver:
+    image: "miloszk/configserver:v2"
+    container_name: "configserver-ms"
+    ports:
+      - "8888:8888"
+    env_file:
+      - ../../configserver/.env
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent localhost:8888/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
+  eurekaserver:
+    image: "miloszk/eurekaserver:v2"
+    container_name: eurekaserver-ms
+    ports:
+      - "8761:8761"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8761/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+
+  userdb:
+    container_name: userdb
+    environment:
+      POSTGRES_DB: userdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d userdb" ]
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  user-service:
+#    build:
+#        context: ./../../user-service
+#        dockerfile: Dockerfile
+    image: "miloszk/user-service:v3"
+    container_name: "user-ms"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail --silent localhost:8081/actuator/health/readiness || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      userdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  productdb:
+    container_name: productdb
+    environment:
+      POSTGRES_DB: productdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d productdb" ]
+    volumes:
+      - product_data:/var/lib/postgresql/data
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  product-service:
+#    build:
+#      context: ./../../product-service
+#      dockerfile: Dockerfile
+    image: "miloszk/product-service:v3"
+    container_name: "product-ms"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail --silent localhost:8082/actuator/health/readiness || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      productdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  cartdb:
+    container_name: cartdb
+    environment:
+      POSTGRES_DB: cartdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d cartdb" ]
+    volumes:
+      - cart_data:/var/lib/postgresql/data
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  cart-service:
+#    build:
+#      context: ./../../cart-service
+#      dockerfile: Dockerfile
+    image: "miloszk/cart-service:v3"
+    container_name: "cart-ms"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail --silent localhost:8083/actuator/health/readiness || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      cartdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  orderdb:
+    container_name: orderdb
+    environment:
+      POSTGRES_DB: orderdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d orderdb" ]
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  order-service:
+#    build:
+#      context: ./../../order-service
+#      dockerfile: Dockerfile
+    image: "miloszk/order-service:v3"
+    container_name: "order-ms"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail --silent localhost:8084/actuator/health/readiness || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      orderdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  api-gateway:
+#    build:
+#      context: ./../../api-gateway
+#      dockerfile: Dockerfile
+    image: "miloszk/api-gateway:v3"
+    container_name: api-gateway-ms
+    ports:
+      - "8080:8080"
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "api-gateway"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "http://keycloak:8080/realms/ecommerce-realm"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+volumes:
+  keycloak_data:
+  user_data:
+  product_data:
+  cart_data:
+  order_data:
+
+networks:
+  ecommerce-network:
+    driver: "bridge"
+
