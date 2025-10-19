@@ -14,6 +14,19 @@ spring:
           issuer-uri: "http://localhost:7080/realms/ecommerce-realm"
 
   cloud:
+    circuitbreaker:
+      resilience4j:
+        configs:
+          default:
+            ignore-exceptions:
+              - org.springframework.web.client.HttpServerErrorException$ServiceUnavailable
+            slidingWindowSize: 10
+            failureRateThreshold: 50
+            waitDurationInOpenState: 10000
+        instances:
+          defaultServiceCircuitBreaker:
+            base-config: default
+
     gateway:
       server:
         webflux:

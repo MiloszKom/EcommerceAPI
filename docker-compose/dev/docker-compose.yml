@@ -69,7 +69,7 @@ services:
 #    build:
 #        context: ./../../user-service
 #        dockerfile: Dockerfile
-    image: "miloszk/user-service:v3"
+    image: "miloszk/user-service:v4"
     container_name: "user-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8081/actuator/health/readiness || exit 1" ]
@@ -106,7 +106,7 @@ services:
 #    build:
 #      context: ./../../product-service
 #      dockerfile: Dockerfile
-    image: "miloszk/product-service:v3"
+    image: "miloszk/product-service:v4"
     container_name: "product-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8082/actuator/health/readiness || exit 1" ]
@@ -141,7 +141,7 @@ services:
 #    build:
 #      context: ./../../cart-service
 #      dockerfile: Dockerfile
-    image: "miloszk/cart-service:v3"
+    image: "miloszk/cart-service:v4"
     container_name: "cart-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8083/actuator/health/readiness || exit 1" ]
@@ -176,7 +176,7 @@ services:
 #    build:
 #      context: ./../../order-service
 #      dockerfile: Dockerfile
-    image: "miloszk/order-service:v3"
+    image: "miloszk/order-service:v4"
     container_name: "order-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8084/actuator/health/readiness || exit 1" ]
@@ -199,7 +199,7 @@ services:
 #    build:
 #      context: ./../../api-gateway
 #      dockerfile: Dockerfile
-    image: "miloszk/api-gateway:v3"
+    image: "miloszk/api-gateway:v4"
     container_name: api-gateway-ms
     ports:
       - "8080:8080"

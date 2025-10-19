@@ -21,29 +21,48 @@ public class ApiGatewayApplication {
 	@Bean
 	public RouteLocator routeConfig(RouteLocatorBuilder routeLocatorBuilder) {
 		return routeLocatorBuilder.routes()
-				.route(p -> p
+				.route("user-service", r -> r
 						.path("/api/users/**")
 						.filters(f -> f
 								.rewritePath("/api/users/(?<segment>.*)", "/api/users/${segment}")
-								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config())))
+								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config()))
+								.circuitBreaker(c -> c
+										.setName("defaultServiceCircuitBreaker")
+										.setFallbackUri("forward:/fallback/user-service"))
+						)
 						.uri("lb://USER-SERVICE"))
-				.route(p -> p
+
+				.route("product-service", r -> r
 						.path("/api/products/**")
 						.filters(f -> f
 								.rewritePath("/api/products/(?<segment>.*)", "/api/products/${segment}")
-								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config())))
+								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config()))
+								.circuitBreaker(c -> c
+										.setName("defaultServiceCircuitBreaker")
+										.setFallbackUri("forward:/fallback/product-service"))
+						)
 						.uri("lb://PRODUCT-SERVICE"))
-				.route(p -> p
+
+				.route("cart-service", r -> r
 						.path("/api/cart/**")
 						.filters(f -> f
 								.rewritePath("/api/cart/(?<segment>.*)", "/api/cart/${segment}")
-								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config())))
+								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config()))
+								.circuitBreaker(c -> c
+										.setName("defaultServiceCircuitBreaker")
+										.setFallbackUri("forward:/fallback/cart-service"))
+						)
 						.uri("lb://CART-SERVICE"))
-				.route(p -> p
+
+				.route("order-service", r -> r
 						.path("/api/orders/**")
 						.filters(f -> f
 								.rewritePath("/api/orders/(?<segment>.*)", "/api/orders/${segment}")
-								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config())))
+								.filter(jwtClaimsFilter.apply(new JwtClaimsToHeadersGatewayFilterFactory.Config()))
+								.circuitBreaker(c -> c
+										.setName("defaultServiceCircuitBreaker")
+										.setFallbackUri("forward:/fallback/order-service"))
+						)
 						.uri("lb://ORDER-SERVICE"))
 				.build();
 	}

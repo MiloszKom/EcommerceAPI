@@ -46,7 +46,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Transactional
     public OrderDetailsDto createOrder(String userId) {
-        CartDto cart = cartFeignClient.getUserCart(userId).getBody();
+        CartDto cart = cartFeignClient.getUserCart(userId);
 
         if (cart == null || cart.items().isEmpty()) {
             throw new IllegalArgumentException("Cannot create order: cart is empty.");
@@ -56,7 +56,8 @@ public class OrderServiceImpl implements IOrderService {
         order.setUserId(userId);
 
         List<OrderItem> orderItems = cart.items().stream().map(cartItem -> {
-            ProductDto product = productFeignClient.getProductById(cartItem.productId()).getBody();
+            ProductDto product = productFeignClient.getProductById(cartItem.productId());
+
             productFeignClient.reduceStock(
                     cartItem.productId(),
                     new StockUpdateRequest(cartItem.quantity())

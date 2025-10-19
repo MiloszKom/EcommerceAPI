@@ -6,12 +6,12 @@ import com.example.cart_service.dto.client.ProductDto;
 import com.example.cart_service.entity.Cart;
 import com.example.cart_service.entity.CartItem;
 import com.example.cart_service.exception.ConflictException;
+import com.example.cart_service.exception.ExternalServiceException;
 import com.example.cart_service.exception.ResourceNotFoundException;
 import com.example.cart_service.mapper.CartMapper;
 import com.example.cart_service.repository.CartRepository;
 import com.example.cart_service.service.ICartService;
 import com.example.cart_service.service.client.ProductFeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +30,8 @@ public class CartServiceImpl implements ICartService {
     }
 
 
-    private Cart getOrCreateCart(String userId) {
+    private Cart getOrCreateCart(String userId) throws ExternalServiceException {
+
         return cartRepository.findByUserId(userId)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
@@ -40,7 +41,7 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public CartDto getUserCart(String userId) {
+    public CartDto getUserCart(String userId) {;
         Cart cart = getOrCreateCart(userId);
         return CartMapper.mapToCartDto(cart);
     }
@@ -48,6 +49,7 @@ public class CartServiceImpl implements ICartService {
     @Override
     @Transactional
     public CartDto addProductToCart(String userId, CartRequest request) {
+
         Cart cart = getOrCreateCart(userId);
 
         boolean exists = cart.getItems().stream()
@@ -57,11 +59,7 @@ public class CartServiceImpl implements ICartService {
             throw new ConflictException("Product already in cart");
         }
 
-        ResponseEntity<ProductDto> product = productFeignClient.getProductById(request.productId());
-
-        if (product == null) {
-            throw new ResourceNotFoundException("Product", "productId", request.productId());
-        }
+        ProductDto product = productFeignClient.getProductById(request.productId());
 
         CartItem cartItem = new CartItem();
         cartItem.setProductId(request.productId());

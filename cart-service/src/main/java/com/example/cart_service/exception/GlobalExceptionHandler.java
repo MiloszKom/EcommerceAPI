@@ -1,6 +1,9 @@
 package com.example.cart_service.exception;
 
 import com.example.cart_service.dto.ErrorResponseDto;
+import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -10,10 +13,12 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,18 +98,77 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponseDto, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ErrorResponseDto> handleExternalServiceException(
+            ExternalServiceException ex,
+            WebRequest request
+    ) {
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+                ex.getStatus().value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponseDto> handleGlobalException(
+//            Exception exception,
+//            WebRequest webRequest
+//    ) {
+//        ErrorResponseDto errorResponseDto = new ErrorResponseDto(
+//                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+//                exception.getMessage(),
+//                LocalDateTime.now(),
+//                webRequest.getDescription(false).replace("uri=","")
+//        );
+//
+//        return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGlobalException(
             Exception exception,
             WebRequest webRequest
     ) {
+        String path = webRequest.getDescription(false).replace("uri=", "");
+        String method = "";
+        String query = "";
+
+        if (webRequest instanceof ServletWebRequest servletWebRequest) {
+            method = servletWebRequest.getHttpMethod().name();
+            query = servletWebRequest.getRequest().getQueryString();
+        }
+
+        log.error("Unhandled exception in {} {}?{}: {}", method, path, query, exception.getMessage(), exception);
+
+        Throwable rootCause = org.apache.commons.lang3.exception.ExceptionUtils.getRootCause(exception);
+        String rootCauseMessage = rootCause != null ? rootCause.getMessage() : exception.getMessage();
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                exception.getMessage(),
+                "An unexpected error occurred. Please try again later.",
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=","")
+                path
         );
+
+        boolean isDev = true;
+        if (isDev) {
+            errorResponseDto.setDetails(Map.of(
+                    "exceptionType", exception.getClass().getName(),
+                    "rootCause", exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage(),
+                    "stackTrace", Arrays.stream(exception.getStackTrace())
+                            .limit(3)
+                            .map(StackTraceElement::toString)
+                            .toList()
+            ));
+        }
+
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }
