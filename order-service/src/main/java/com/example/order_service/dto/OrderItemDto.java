@@ -2,7 +2,7 @@ package com.example.order_service.dto;
 
 import java.math.BigDecimal;
 
-public record OrderItemDTO(
+public record OrderItemDto(
         long id,
         long productId,
         String productName,

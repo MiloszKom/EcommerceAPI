@@ -12,6 +12,12 @@ public class TokenResponse {
     @JsonProperty("expires_in")
     private int expiresIn;
 
+    public TokenResponse(String accessToken, String refreshToken, int expiresIn) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.expiresIn = expiresIn;
+    }
+
     public String getAccessToken() {
         return accessToken;
     }

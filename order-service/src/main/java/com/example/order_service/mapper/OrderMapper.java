@@ -1,7 +1,7 @@
 package com.example.order_service.mapper;
 
 import com.example.order_service.dto.OrderDetailsDto;
-import com.example.order_service.dto.OrderItemDTO;
+import com.example.order_service.dto.OrderItemDto;
 import com.example.order_service.dto.OrderSummaryDto;
 import com.example.order_service.model.Order;
 import com.example.order_service.model.OrderItem;
@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 public class OrderMapper {
 
     public static OrderDetailsDto toDetailsDTO(Order order) {
-        List<OrderItemDTO> items = order.getItems().stream()
-                .map(item -> new OrderItemDTO(
+        List<OrderItemDto> items = order.getItems().stream()
+                .map(item -> new OrderItemDto(
                         item.getId(),
                         item.getProductId(),
                         item.getProductName(),

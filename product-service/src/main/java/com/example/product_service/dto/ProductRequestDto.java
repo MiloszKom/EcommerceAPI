@@ -23,6 +23,13 @@ public class ProductRequestDto {
     @Min(value = 0, message = "Stock cannot be negative")
     private Integer stock;
 
+    public ProductRequestDto(String name, String description, BigDecimal price, Integer stock) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stock = stock;
+    }
+
     public String getName() {
         return name;
     }
@@ -30,7 +37,6 @@ public class ProductRequestDto {
     public String getDescription() {
         return description;
     }
-
 
     public BigDecimal getPrice() {
         return price;

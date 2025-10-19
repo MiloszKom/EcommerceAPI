@@ -9,7 +9,7 @@ import java.util.List;
 public record OrderDetailsDto(
         long id,
         String userId,
-        List<OrderItemDTO> items,
+        List<OrderItemDto> items,
         OrderStatus status,
         BigDecimal totalPrice,
         LocalDateTime createdAt,

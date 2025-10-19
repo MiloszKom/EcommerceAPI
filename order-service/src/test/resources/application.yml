@@ -1,39 +1,29 @@
+server:
+  port: 0
+
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/cart_db
-    username: postgres
-    password: password
+  application:
+    name: "order-service"
+  config:
+    import: optional:configserver:http://localhost:8888
+
   jpa:
     hibernate:
       ddl-auto: update
-  security:
-    user:
-      name: testuser
-      password: testpassword
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-product:
-  service:
-    url: http://localhost:8082/
+eureka:
+  client:
+    enabled: false
 
-cart:
-  service:
-    url: http://localhost:8083/
-
-app:
-  gateway:
-    secret: testsecret
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      productServiceCircuitBreaker:
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 3
-  retry:
-    instances:
-      productServiceRetry:
-        maxRetryAttempts: 3
-        waitDuration: 500ms
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: false
+    health:
+      probes:
+        enabled: true
