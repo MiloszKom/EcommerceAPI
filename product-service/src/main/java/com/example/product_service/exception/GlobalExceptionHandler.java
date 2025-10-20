@@ -1,6 +1,8 @@
 package com.example.product_service.exception;
 
 import com.example.product_service.dto.ErrorResponseDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,8 +21,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.context.request.ServletWebRequest;
+
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // Utility method to get cleaned request details
+    private String getRequestDetails(WebRequest webRequest) {
+        String uri = webRequest.getDescription(false).replace("uri=", "");
+        String httpMethod = (webRequest instanceof ServletWebRequest)
+                ? ((ServletWebRequest) webRequest).getRequest().getMethod()
+                : "UNKNOWN";
+        return String.format("%s %s", httpMethod, uri);
+    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -29,7 +44,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request
     ) {
-        Map<String,String> validationErrors = new HashMap<>();
+        Map<String, String> validationErrors = new HashMap<>();
         List<ObjectError> validationErrorList = ex.getBindingResult().getAllErrors();
 
         validationErrorList.forEach((error) -> {
@@ -38,11 +53,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             validationErrors.put(fieldName, validationMsg);
         });
 
+        String requestDetails = getRequestDetails(request);
+        log.warn("Validation failed for request [{}] - {} fields invalid: {}",
+                requestDetails, validationErrors.size(), validationErrors);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.BAD_REQUEST.value(),
                 "One or more fields have invalid values",
                 LocalDateTime.now(),
-                request.getDescription(false).replace("uri=",""),
+                requestDetails,
                 validationErrors
         );
 
@@ -54,11 +73,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ResourceNotFoundException exception,
             WebRequest webRequest
     ) {
+        String requestDetails = getRequestDetails(webRequest);
+        log.warn("Resource not found: {} at [{}]", exception.getMessage(), requestDetails);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.NOT_FOUND.value(),
                 exception.getMessage(),
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=","")
+                requestDetails
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.NOT_FOUND);
@@ -69,11 +91,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ConflictException exception,
             WebRequest webRequest
     ) {
+        String requestDetails = getRequestDetails(webRequest);
+        log.warn("Conflict: {} at [{}]", exception.getMessage(), requestDetails);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.CONFLICT.value(),
                 exception.getMessage(),
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=","")
+                requestDetails
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.CONFLICT);
@@ -85,18 +110,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest webRequest
     ) {
         String message = "Database constraint violated";
-
         Throwable rootCause = exception.getMostSpecificCause();
         String rootMsg = rootCause.getMessage();
         if (rootMsg != null && rootMsg.toLowerCase().contains("name")) {
             message = "Product already created with this name";
         }
 
+        String requestDetails = getRequestDetails(webRequest);
+        log.error("Data integrity violation: {} at [{}] - root cause: {}", message, requestDetails, rootMsg, exception);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.CONFLICT.value(),
                 message,
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=", "")
+                requestDetails
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.CONFLICT);
@@ -107,11 +134,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             Exception exception,
             WebRequest webRequest
     ) {
+        String requestDetails = getRequestDetails(webRequest);
+        log.error("Unexpected error: {} at [{}]", exception.getMessage(), requestDetails, exception);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                exception.getMessage(),
+                "An unexpected error occurred",
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=","")
+                requestDetails
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,7 +1,6 @@
 package com.example.cart_service.exception;
 
 import com.example.cart_service.dto.ErrorResponseDto;
-import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +25,16 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    private String getRequestDetails(WebRequest webRequest) {
+        String uri = webRequest.getDescription(false).replace("uri=", "");
+        String httpMethod = (webRequest instanceof ServletWebRequest)
+                ? ((ServletWebRequest) webRequest).getRequest().getMethod()
+                : "UNKNOWN";
+        return String.format("%s %s", httpMethod, uri);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
@@ -33,7 +42,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request
     ) {
-        Map<String,String> validationErrors = new HashMap<>();
+        Map<String, String> validationErrors = new HashMap<>();
         List<ObjectError> validationErrorList = ex.getBindingResult().getAllErrors();
 
         validationErrorList.forEach((error) -> {
@@ -42,11 +51,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             validationErrors.put(fieldName, validationMsg);
         });
 
+        String requestDetails = getRequestDetails(request);
+        log.warn("Validation failed for request [{}] - {} fields invalid: {}",
+                requestDetails, validationErrors.size(), validationErrors);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.BAD_REQUEST.value(),
                 "One or more fields have invalid values",
                 LocalDateTime.now(),
-                request.getDescription(false).replace("uri=",""),
+                requestDetails,
                 validationErrors
         );
 
@@ -58,11 +71,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ResourceNotFoundException exception,
             WebRequest webRequest
     ) {
+        String requestDetails = getRequestDetails(webRequest);
+        log.warn("Resource not found: {} at [{}]", exception.getMessage(), requestDetails);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.NOT_FOUND.value(),
                 exception.getMessage(),
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=","")
+                requestDetails
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.NOT_FOUND);
@@ -73,14 +89,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             IllegalArgumentException exception,
             WebRequest webRequest
     ) {
+        String requestDetails = getRequestDetails(webRequest);
+        log.warn("Invalid argument: {} at [{}]", exception.getMessage(), requestDetails);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=","")
+                requestDetails
         );
 
-        return new ResponseEntity<>(errorResponseDto, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -88,11 +107,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ConflictException exception,
             WebRequest webRequest
     ) {
+        String requestDetails = getRequestDetails(webRequest);
+        log.warn("Conflict: {} at [{}]", exception.getMessage(), requestDetails);
+
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.CONFLICT.value(),
                 exception.getMessage(),
                 LocalDateTime.now(),
-                webRequest.getDescription(false).replace("uri=","")
+                requestDetails
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.CONFLICT);
@@ -103,72 +125,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ExternalServiceException ex,
             WebRequest request
     ) {
+        String requestDetails = getRequestDetails(request);
+        log.error("External service error: {} at [{}]", ex.getMessage(), requestDetails, ex);
+
         ErrorResponseDto errorResponse = new ErrorResponseDto(
                 ex.getStatus().value(),
                 ex.getMessage(),
                 LocalDateTime.now(),
-                request.getDescription(false).replace("uri=", "")
+                requestDetails
         );
         return new ResponseEntity<>(errorResponse, ex.getStatus());
     }
-
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<ErrorResponseDto> handleGlobalException(
-//            Exception exception,
-//            WebRequest webRequest
-//    ) {
-//        ErrorResponseDto errorResponseDto = new ErrorResponseDto(
-//                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                exception.getMessage(),
-//                LocalDateTime.now(),
-//                webRequest.getDescription(false).replace("uri=","")
-//        );
-//
-//        return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGlobalException(
             Exception exception,
             WebRequest webRequest
     ) {
-        String path = webRequest.getDescription(false).replace("uri=", "");
-        String method = "";
-        String query = "";
-
-        if (webRequest instanceof ServletWebRequest servletWebRequest) {
-            method = servletWebRequest.getHttpMethod().name();
-            query = servletWebRequest.getRequest().getQueryString();
-        }
-
-        log.error("Unhandled exception in {} {}?{}: {}", method, path, query, exception.getMessage(), exception);
-
-        Throwable rootCause = org.apache.commons.lang3.exception.ExceptionUtils.getRootCause(exception);
-        String rootCauseMessage = rootCause != null ? rootCause.getMessage() : exception.getMessage();
+        String requestDetails = getRequestDetails(webRequest);
+        log.error("Unexpected error: {} at [{}]", exception.getMessage(), requestDetails, exception);
 
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "An unexpected error occurred. Please try again later.",
+                "An unexpected error occurred",
                 LocalDateTime.now(),
-                path
+                requestDetails
         );
-
-        boolean isDev = true;
-        if (isDev) {
-            errorResponseDto.setDetails(Map.of(
-                    "exceptionType", exception.getClass().getName(),
-                    "rootCause", exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage(),
-                    "stackTrace", Arrays.stream(exception.getStackTrace())
-                            .limit(3)
-                            .map(StackTraceElement::toString)
-                            .toList()
-            ));
-        }
-
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 }

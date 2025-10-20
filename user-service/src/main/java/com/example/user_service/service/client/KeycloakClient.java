@@ -112,7 +112,7 @@ public class KeycloakClient {
 
             String message = parseKeycloakError(errorBody, "Invalid authentication request");
 
-            throw new KeycloakException(message, status == HttpStatus.UNAUTHORIZED ? HttpStatus.UNAUTHORIZED : status);
+            throw new KeycloakException(message, status);
         } catch (Exception e) {
             throw new KeycloakException("Unexpected error during token request: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -139,6 +139,6 @@ public class KeycloakClient {
         } catch (Exception parseEx) {
             System.out.println("Failed to parse Keycloak error: " + parseEx.getMessage());
         }
-        return fallbackMessage + ": " + body;  // Ultimate fallback with raw body
+        return fallbackMessage + ": " + body;
     }
 }

@@ -32,11 +32,13 @@ management:
     health:
       probes:
         enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 encrypt:
   key: ${ENCRYPT_KEY}
 
-#logging:
-#  level:
-#    org.eclipse.jgit: DEBUG
-#    org.springframework.cloud.config.server: DEBUG
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

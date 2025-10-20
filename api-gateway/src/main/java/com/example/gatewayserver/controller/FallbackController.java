@@ -1,6 +1,8 @@
 package com.example.gatewayserver.controller;
 
 import com.example.gatewayserver.security.ErrorResponseDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/fallback")
 public class FallbackController {
+
+    private static final Logger log = LoggerFactory.getLogger(FallbackController.class);
 
     @RequestMapping("/order-service")
     public Mono<ResponseEntity<ErrorResponseDto>> orderServiceFallback(ServerWebExchange exchange) {
@@ -35,11 +39,16 @@ public class FallbackController {
     }
 
     private Mono<ResponseEntity<ErrorResponseDto>> buildFallbackResponse(String serviceName, ServerWebExchange exchange) {
+        String requestPath = exchange.getRequest().getPath().toString();
+        String httpMethod = exchange.getRequest().getMethod().name();
+
+        log.warn("Fallback triggered for {}: Method: {}, Path: {}", serviceName, httpMethod, requestPath);
+
         ErrorResponseDto errorResponse = new ErrorResponseDto(
                 HttpStatus.SERVICE_UNAVAILABLE.value(),
                 String.format("%s is currently unavailable. Please try again later.", serviceName),
                 LocalDateTime.now(),
-                exchange.getRequest().getPath().toString()
+                requestPath
         );
 
         return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse));

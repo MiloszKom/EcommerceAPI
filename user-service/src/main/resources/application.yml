@@ -31,6 +31,9 @@ management:
   info:
     env:
       enabled: true
+  metrics:
+    logs:
+      application: ${spring.application.name}
 
 endpoints:
   shutdown:
@@ -58,3 +61,7 @@ keycloak:
   admin-client-secret: dJcaIunrIK7oSPZUYzIWxbcSeFR4vU8A
 app:
   jwt-issuer: http://localhost:7080/realms/ecommerce-realm
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

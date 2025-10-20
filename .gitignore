@@ -15,3 +15,5 @@ build/
 
 # Environment files
 .env
+
+.data/

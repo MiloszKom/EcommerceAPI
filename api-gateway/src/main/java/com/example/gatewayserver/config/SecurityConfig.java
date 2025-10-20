@@ -24,6 +24,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
                 .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers("/actuator/**").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/users/login", "/api/users/register").permitAll()
 
                         .pathMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")

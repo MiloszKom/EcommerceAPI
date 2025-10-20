@@ -65,6 +65,9 @@ management:
   info:
     env:
       enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 info:
   app:
@@ -73,5 +76,5 @@ info:
     version: "1.0"
 
 logging:
-  level:
-    org.springframework.security: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
