@@ -32,8 +32,8 @@ public class JwtClaimsToHeadersGatewayFilterFactory extends AbstractGatewayFilte
                                 String email = jwt.getClaimAsString("email");
                                 String preferredUsername = jwt.getClaimAsString("preferred_username");
                                 String sub = jwt.getClaimAsString("sub");
-
                                 Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+
                                 boolean isAdmin = false;
 
                                 if (realmAccess != null && realmAccess.get("roles") instanceof List<?> rolesList) {

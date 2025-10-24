@@ -236,7 +236,7 @@ services:
 #    build:
 #        context: ./../../configserver
 #        dockerfile: Dockerfile
-    image: "miloszk/configserver:v3"
+    image: "miloszk/configserver:v6"
     container_name: "configserver-ms"
     ports:
       - "8888:8888"
@@ -258,7 +258,7 @@ services:
 #    build:
 #        context: ./../../eurekaserver
 #        dockerfile: Dockerfile
-    image: "miloszk/eurekaserver:v3"
+    image: "miloszk/eurekaserver:v6"
     container_name: eurekaserver-ms
     ports:
       - "8761:8761"
@@ -294,7 +294,7 @@ services:
 #    build:
 #        context: ./../../user-service
 #        dockerfile: Dockerfile
-    image: "miloszk/user-service:v5"
+    image: "miloszk/user-service:v6"
     container_name: "user-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8081/actuator/health/readiness || exit 1" ]
@@ -315,6 +315,8 @@ services:
       file: common-config.yml
       service: microservice-eureka-config
     environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://userdb:5432/userdb"
+      KEYCLOAK_BASE_URL: "http://keycloak:8080"
       OTEL_SERVICE_NAME: "user-service"
 
   productdb:
@@ -334,7 +336,7 @@ services:
 #    build:
 #      context: ./../../product-service
 #      dockerfile: Dockerfile
-    image: "miloszk/product-service:v5"
+    image: "miloszk/product-service:v6"
     container_name: "product-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8082/actuator/health/readiness || exit 1" ]
@@ -353,6 +355,7 @@ services:
       file: common-config.yml
       service: microservice-eureka-config
     environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://productdb:5432/productdb"
       OTEL_SERVICE_NAME: "product-service"
 
   cartdb:
@@ -371,7 +374,7 @@ services:
 #    build:
 #      context: ./../../cart-service
 #      dockerfile: Dockerfile
-    image: "miloszk/cart-service:v5"
+    image: "miloszk/cart-service:v6"
     container_name: "cart-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8083/actuator/health/readiness || exit 1" ]
@@ -390,6 +393,7 @@ services:
       file: common-config.yml
       service: microservice-eureka-config
     environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://cartdb:5432/cartdb"
       OTEL_SERVICE_NAME: "cart-service"
 
   orderdb:
@@ -408,7 +412,7 @@ services:
 #    build:
 #      context: ./../../order-service
 #      dockerfile: Dockerfile
-    image: "miloszk/order-service:v5"
+    image: "miloszk/order-service:v6"
     container_name: "order-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8084/actuator/health/readiness || exit 1" ]
@@ -427,13 +431,14 @@ services:
       file: common-config.yml
       service: microservice-eureka-config
     environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://orderdb:5432/orderdb"
       OTEL_SERVICE_NAME: "order-service"
 
   api-gateway:
 #    build:
 #      context: ./../../api-gateway
 #      dockerfile: Dockerfile
-    image: "miloszk/api-gateway:v5"
+    image: "miloszk/api-gateway:v6"
     container_name: api-gateway-ms
     ports:
       - "8080:8080"
@@ -448,7 +453,7 @@ services:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "api-gateway"
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "http://keycloak:8080/realms/ecommerce-realm"
+      KEYCLOAK_BASE_URL: "http://keycloak:8080"
       OTEL_SERVICE_NAME: "api-gateway"
     extends:
       file: common-config.yml

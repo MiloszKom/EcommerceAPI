@@ -1,0 +1,127 @@
+{{- define "common.deployment" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deploymentName }}
+  labels:
+    app: {{ .Values.appLabel }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appLabel }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appLabel }}
+    spec:
+      containers:
+        - name: {{ .Values.appLabel }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          env:
+          {{- if .Values.appname_enabled }}
+            - name: SPRING_APPLICATION_NAME
+              value: {{ .Values.appName }}
+          {{- end }}
+          {{- if .Values.profile_enabled }}
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: SPRING_PROFILES_ACTIVE
+          {{- end }}
+          {{- if .Values.userdb_enabled }}
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: SPRING_DATASOURCE_USER_URL
+          {{- end }}
+          {{- if .Values.productdb_enabled }}
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: SPRING_DATASOURCE_PRODUCT_URL
+          {{- end }}
+          {{- if .Values.cartdb_enabled }}
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: SPRING_DATASOURCE_CART_URL
+          {{- end }}
+          {{- if .Values.orderdb_enabled }}
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: SPRING_DATASOURCE_ORDER_URL
+          {{- end }}
+          {{- if .Values.keycloak_enabled }}
+            - name: KEYCLOAK_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: KEYCLOAK_BASE_URL
+          {{- end }}
+          {{- if .Values.config_enabled }}
+            - name: CONFIG_SERVER_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: CONFIG_SERVER_URI
+          {{- end }}
+          {{- if .Values.eureka_enabled }}
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          {{- end }}
+          {{- if .Values.otel_enabled }}
+            - name: JAVA_TOOL_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: JAVA_TOOL_OPTIONS
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: OTEL_EXPORTER_OTLP_ENDPOINT
+            - name: OTEL_METRICS_EXPORTER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: OTEL_METRICS_EXPORTER
+            - name: OTEL_LOGS_EXPORTER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: OTEL_LOGS_EXPORTER
+            - name: OTEL_SERVICE_NAME
+              value: {{ .Values.appName }}
+          {{- end }}
+          {{- if .Values.configserver_secrets_enabled }}
+            - name: GIT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.configMapName }}-secret
+                  key: GIT_TOKEN
+            - name: JAVA_TLS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.configMapName }}-secret
+                  key: JAVA_TLS
+            - name: ENCRYPT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.configMapName }}-secret
+                  key: ENCRYPT_KEY
+          {{- end }}
+
+{{- end -}}

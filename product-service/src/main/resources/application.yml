@@ -35,10 +35,6 @@ management:
     tags:
       application: ${spring.application.name}
 
-logging:
-  pattern:
-    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
-
 endpoints:
   shutdown:
     enabled: true
@@ -51,6 +47,10 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
 
 info:
   app:

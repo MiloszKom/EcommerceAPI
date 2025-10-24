@@ -23,14 +23,14 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody RegisterRequestDto request) {
-        log.debug("Starting registration for email: {}", request.getEmail());
+        log.debug("Starting registration for email: {}", request.getEmail());;
         TokenResponse token = userService.register(request);
         return ResponseEntity.ok(token);
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequestDto request) {
-        log.info("User login attempt for email: {}", request.getEmail());
+        log.info("User login attempt for email: {}", request.getEmail());;
         TokenResponse token = userService.login(request);
         return ResponseEntity.ok(token);
     }

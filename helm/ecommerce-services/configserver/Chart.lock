@@ -1,0 +1,6 @@
+dependencies:
+- name: ecommerce-common
+  repository: file://../../ecommerce-common
+  version: 0.1.0
+digest: sha256:7fcb489c32a43962addb88881cec14693694f94bf1497a626ecf717c5bbdae19
+generated: "2025-10-22T08:01:44.5755817+02:00"

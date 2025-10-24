@@ -1,0 +1,21 @@
+{{- define "common.configmap" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.global.configMapName }}
+data:
+  SPRING_PROFILES_ACTIVE: "{{ .Values.global.activeProfile }}"
+  CONFIG_SERVER_URI: "{{ .Values.global.configServerURI }}"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "{{ .Values.global.eurekaServerURL }}"
+  KEYCLOAK_BASE_URL: "{{ .Values.global.keycloakBaseURL}}"
+  JAVA_TOOL_OPTIONS: "{{ .Values.global.openTelemetryJavaAgent }}"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "{{ .Values.global.otelExporterEndPoint }}"
+  OTEL_METRICS_EXPORTER: "{{ .Values.global.otelMetricsExporter }}"
+  OTEL_LOGS_EXPORTER: "{{ .Values.global.otelLogsExporter }}"
+
+  SPRING_DATASOURCE_USER_URL: "{{ .Values.global.userDbURL }}"
+  SPRING_DATASOURCE_PRODUCT_URL: "{{ .Values.global.productDbURL }}"
+  SPRING_DATASOURCE_CART_URL: "{{ .Values.global.cartDbURL }}"
+  SPRING_DATASOURCE_ORDER_URL: "{{ .Values.global.orderDbURL }}"
+
+{{- end -}}

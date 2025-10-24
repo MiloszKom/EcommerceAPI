@@ -11,7 +11,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "http://localhost:7080/realms/ecommerce-realm"
+          issuer-uri: "${KEYCLOAK_BASE_URL:http://localhost:7080}/realms/ecommerce-realm"
 
   cloud:
     circuitbreaker:
@@ -35,8 +35,8 @@ spring:
               enabled: false
               lower-case-service-id: true
           httpclient:
-            connect-timeout: 1000
-            response-timeout: 5s
+            connect-timeout: 3000
+            response-timeout: 7s
 
 management:
   endpoints:

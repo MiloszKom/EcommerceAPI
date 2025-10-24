@@ -1,0 +1,27 @@
+dependencies:
+- name: ecommerce-common
+  repository: file://../../ecommerce-common
+  version: 0.1.0
+- name: configserver
+  repository: file://../../ecommerce-services/configserver
+  version: 0.1.0
+- name: eurekaserver
+  repository: file://../../ecommerce-services/eurekaserver
+  version: 0.1.0
+- name: user-service
+  repository: file://../../ecommerce-services/user-service
+  version: 0.1.0
+- name: product-service
+  repository: file://../../ecommerce-services/product-service
+  version: 0.1.0
+- name: cart-service
+  repository: file://../../ecommerce-services/cart-service
+  version: 0.1.0
+- name: order-service
+  repository: file://../../ecommerce-services/order-service
+  version: 0.1.0
+- name: api-gateway
+  repository: file://../../ecommerce-services/api-gateway
+  version: 0.1.0
+digest: sha256:989e43072d9c08d37b3b2f7598114cae8eae5bcbf512e4b3d37e3e5d07781b80
+generated: "2025-10-22T11:56:07.8252238+02:00"

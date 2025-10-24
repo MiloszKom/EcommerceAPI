@@ -1,0 +1,29 @@
+deploymentName: api-gateway-deployment
+serviceName: api-gateway
+appLabel: api-gateway
+appName: api-gateway
+
+replicaCount: 1
+
+image:
+  repository: miloszk/api-gateway
+  tag: v6
+
+containerPort: 8080
+
+service:
+  type: LoadBalancer
+  port: 8080
+  targetPort: 8080
+
+appname_enabled: true
+profile_enabled: true
+keycloak_enabled: true
+config_enabled: true
+eureka_enabled: true
+otel_enabled: true
+configserver_secrets_enabled: false
+userdb_enabled: false
+productdb_enabled: false
+cartdb_enabled: false
+orderdb_enabled: false

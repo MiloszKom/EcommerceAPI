@@ -1,0 +1,15 @@
+global:
+  configMapName: ecommercedev-configmap
+  activeProfile: dev
+  configServerURI: http://configserver:8888
+  eurekaServerURL: http://eurekaserver:8761/eureka/
+  openTelemetryJavaAgent: "-javaagent:/app/libs/opentelemetry-javaagent-2.11.0.jar"
+  otelExporterEndPoint: http://tempo.default.svc.cluster.local:4318
+  otelMetricsExporter: none
+  otelLogsExporter: none
+  keycloakBaseURL: http://keycloak.default.svc.cluster.local
+
+  userDbURL: jdbc:postgresql://userdb:5432/userdb
+  productDbURL: jdbc:postgresql://productdb:5432/productdb
+  cartDbURL: jdbc:postgresql://cartdb:5432/cartdb
+  orderDbURL: jdbc:postgresql://orderdb:5432/orderdb

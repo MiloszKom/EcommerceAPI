@@ -1,0 +1,29 @@
+deploymentName: order-service-deployment
+serviceName: order-service
+appLabel: order-service
+appName: order-service
+
+replicaCount: 1
+
+image:
+  repository: miloszk/order-service
+  tag: v6
+
+containerPort: 8084
+
+service:
+  type: ClusterIP
+  port: 8084
+  targetPort: 8084
+
+appname_enabled: true
+profile_enabled: true
+keycloak_enabled: false
+config_enabled: true
+eureka_enabled: true
+otel_enabled: true
+configserver_secrets_enabled: false
+userdb_enabled: false
+productdb_enabled: false
+cartdb_enabled: false
+orderdb_enabled: true

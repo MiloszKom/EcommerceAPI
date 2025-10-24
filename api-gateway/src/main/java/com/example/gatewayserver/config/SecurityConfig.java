@@ -2,7 +2,6 @@ package com.example.gatewayserver.config;
 
 import com.example.gatewayserver.security.CustomAccessDeniedHandler;
 import com.example.gatewayserver.security.CustomAuthenticationEntryPoint;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +24,7 @@ public class SecurityConfig {
         http
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/actuator/**").permitAll()
+
                         .pathMatchers(HttpMethod.POST, "/api/users/login", "/api/users/register").permitAll()
 
                         .pathMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")

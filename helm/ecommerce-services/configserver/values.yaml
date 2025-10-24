@@ -1,0 +1,29 @@
+deploymentName: configserver-deployment
+serviceName: configserver
+appLabel: configserver
+appName: configserver
+
+replicaCount: 1
+
+image:
+  repository: miloszk/configserver
+  tag: v6
+
+containerPort: 8888
+
+service:
+  type: ClusterIP
+  port: 8888
+  targetPort: 8888
+
+appname_enabled: true
+profile_enabled: false
+keycloak_enabled: false
+config_enabled: false
+eureka_enabled: false
+otel_enabled: true
+configserver_secrets_enabled: true
+userdb_enabled: false
+productdb_enabled: false
+cartdb_enabled: false
+orderdb_enabled: false

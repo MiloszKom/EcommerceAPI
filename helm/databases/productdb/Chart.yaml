@@ -1,0 +1,6 @@
+apiVersion: v2
+name: productdb
+description: A Helm chart for PostgreSQL 15
+type: application
+version: 1.0.0
+appVersion: "15"

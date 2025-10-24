@@ -42,10 +42,8 @@ public class UserServiceImpl implements IUserService {
 
         String userId = keycloakClient.createUser(userRep);
         log.info("Keycloak user created successfully with ID: {}", userId);
-
         saveLocalUserIfNotExists(userId);
         log.info("Local user saved successfully for ID: {}", userId);
-
         TokenResponse token = keycloakClient.getUserTokens(
                 "password",
                 request.getEmail(),
@@ -70,6 +68,7 @@ public class UserServiceImpl implements IUserService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to extract user ID from token: " + e.getMessage(), e);
         }
+
         return token;
     }
 

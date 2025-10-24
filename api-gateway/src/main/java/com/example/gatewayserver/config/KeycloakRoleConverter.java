@@ -25,7 +25,7 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
         }
 
         return roles.stream()
-                .map(roleName -> "ROLE_" + roleName.toUpperCase()) // Spring convention
+                .map(roleName -> "ROLE_" + roleName.toUpperCase())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

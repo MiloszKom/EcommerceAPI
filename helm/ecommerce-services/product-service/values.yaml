@@ -1,0 +1,29 @@
+deploymentName: product-service-deployment
+serviceName: product-service
+appLabel: product-service
+appName: product-service
+
+replicaCount: 1
+
+image:
+  repository: miloszk/product-service
+  tag: v6
+
+containerPort: 8082
+
+service:
+  type: ClusterIP
+  port: 8082
+  targetPort: 8082
+
+appname_enabled: true
+profile_enabled: true
+keycloak_enabled: false
+config_enabled: true
+eureka_enabled: true
+otel_enabled: true
+configserver_secrets_enabled: false
+userdb_enabled: false
+productdb_enabled: true
+cartdb_enabled: false
+orderdb_enabled: false

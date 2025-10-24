@@ -48,20 +48,21 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 
+keycloak:
+  server-url: ${KEYCLOAK_BASE_URL:http://localhost:7080}
+  realm: ecommerce-realm
+  admin-client-id: ecommerce-cc
+  admin-client-secret: dJcaIunrIK7oSPZUYzIWxbcSeFR4vU8A
+app:
+  jwt-issuer: ${KEYCLOAK_BASE_URL:http://localhost:7080}/realms/ecommerce-realm
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
 info:
   app:
     name: "user-service"
     description: "User service for Ecommerce Application"
     version: "1.0"
 
-keycloak:
-  server-url: http://localhost:7080
-  realm: ecommerce-realm
-  admin-client-id: ecommerce-cc
-  admin-client-secret: dJcaIunrIK7oSPZUYzIWxbcSeFR4vU8A
-app:
-  jwt-issuer: http://localhost:7080/realms/ecommerce-realm
-
-logging:
-  pattern:
-    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

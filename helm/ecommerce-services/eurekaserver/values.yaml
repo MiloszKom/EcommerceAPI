@@ -1,0 +1,29 @@
+deploymentName: eurekaserver-deployment
+serviceName: eurekaserver
+appLabel: eurekaserver
+appName: eurekaserver
+
+replicaCount: 1
+
+image:
+  repository: miloszk/eurekaserver
+  tag: v6
+
+containerPort: 8761
+
+service:
+  type: ClusterIP
+  port: 8761
+  targetPort: 8761
+
+appname_enabled: true
+profile_enabled: false
+keycloak_enabled: false
+config_enabled: true
+eureka_enabled: false
+otel_enabled: true
+configserver_secrets_enabled: false
+userdb_enabled: false
+productdb_enabled: false
+cartdb_enabled: false
+orderdb_enabled: false

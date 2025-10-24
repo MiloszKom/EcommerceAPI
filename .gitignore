@@ -17,3 +17,6 @@ build/
 .env
 
 .data/
+configserver-secret.yaml
+
+/helm/enviroments/dev-env/secrets.yaml

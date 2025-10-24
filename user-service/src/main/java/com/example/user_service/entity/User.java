@@ -8,7 +8,7 @@ public class User extends BaseEntity {
 
     @Id
     @Column(nullable = false)
-    private String id;  // Keycloak UUID (e.g., "123e4567-e89b-12d3-a456-426614174000")
+    private String id;
 
     @Column
     private String phoneNumber;

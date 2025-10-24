@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "26.4.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+
+admin:
+  username: user
+  password: password
+
+command: "start-dev"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+persistence:
+  enabled: true
+  existingClaim: keycloak-pvc
+#  Disable on first install ^
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi

@@ -1,0 +1,29 @@
+deploymentName: user-service-deployment
+serviceName: user-service
+appLabel: user-service
+appName: user-service
+
+replicaCount: 1
+
+image:
+  repository: miloszk/user-service
+  tag: v6
+
+containerPort: 8081
+
+service:
+  type: ClusterIP
+  port: 8081
+  targetPort: 8081
+
+appname_enabled: true
+profile_enabled: true
+keycloak_enabled: true
+config_enabled: true
+eureka_enabled: true
+otel_enabled: true
+configserver_secrets_enabled: false
+userdb_enabled: true
+productdb_enabled: false
+cartdb_enabled: false
+orderdb_enabled: false
