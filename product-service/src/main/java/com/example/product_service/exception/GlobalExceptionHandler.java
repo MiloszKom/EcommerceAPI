@@ -8,6 +8,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,13 +31,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // Utility method to get cleaned request details
-    private String getRequestDetails(WebRequest webRequest) {
-        String uri = webRequest.getDescription(false).replace("uri=", "");
-        String httpMethod = (webRequest instanceof ServletWebRequest)
-                ? ((ServletWebRequest) webRequest).getRequest().getMethod()
-                : "UNKNOWN";
-        return String.format("%s %s", httpMethod, uri);
+    // Utility method to get request path
+    private String getRequestPath(WebRequest request) {
+        if (request instanceof ServletWebRequest servletWebRequest) {
+            return servletWebRequest.getRequest().getRequestURI();
+        }
+        return "Unknown path";
     }
 
     @Override
@@ -53,15 +55,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             validationErrors.put(fieldName, validationMsg);
         });
 
-        String requestDetails = getRequestDetails(request);
+        String requestPath = getRequestPath(request);
         log.warn("Validation failed for request [{}] - {} fields invalid: {}",
-                requestDetails, validationErrors.size(), validationErrors);
+                requestPath, validationErrors.size(), validationErrors);
 
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.BAD_REQUEST.value(),
                 "One or more fields have invalid values",
                 LocalDateTime.now(),
-                requestDetails,
+                requestPath,
                 validationErrors
         );
 
@@ -73,14 +75,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ResourceNotFoundException exception,
             WebRequest webRequest
     ) {
-        String requestDetails = getRequestDetails(webRequest);
-        log.warn("Resource not found: {} at [{}]", exception.getMessage(), requestDetails);
+        String requestPath = getRequestPath(webRequest);
+        log.warn("Resource not found: {} at [{}]", exception.getMessage(), requestPath);
 
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.NOT_FOUND.value(),
                 exception.getMessage(),
                 LocalDateTime.now(),
-                requestDetails
+                requestPath
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.NOT_FOUND);
@@ -91,14 +93,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ConflictException exception,
             WebRequest webRequest
     ) {
-        String requestDetails = getRequestDetails(webRequest);
-        log.warn("Conflict: {} at [{}]", exception.getMessage(), requestDetails);
+        String requestPath = getRequestPath(webRequest);
+        log.warn("Conflict: {} at [{}]", exception.getMessage(), requestPath);
 
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.CONFLICT.value(),
                 exception.getMessage(),
                 LocalDateTime.now(),
-                requestDetails
+                requestPath
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.CONFLICT);
@@ -116,17 +118,50 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             message = "Product already created with this name";
         }
 
-        String requestDetails = getRequestDetails(webRequest);
-        log.error("Data integrity violation: {} at [{}] - root cause: {}", message, requestDetails, rootMsg, exception);
+        String requestPath = getRequestPath(webRequest);
+        log.error("Data integrity violation: {} at [{}] - root cause: {}", message, requestPath, rootMsg, exception);
 
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.CONFLICT.value(),
                 message,
                 LocalDateTime.now(),
-                requestDetails
+                requestPath
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InsufficientAuthenticationException.class)
+    public ResponseEntity<ErrorResponseDto> handleAuthenticationException(InsufficientAuthenticationException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Authentication is required to access this resource.",
+                LocalDateTime.now(),
+                getRequestPath(request)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidBearerTokenException.class)
+    public ResponseEntity<ErrorResponseDto> handleJwtException(InvalidBearerTokenException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+                HttpStatus.UNAUTHORIZED.value(),
+                "The access token provided is expired, revoked, malformed, or invalid for other reasons.",
+                LocalDateTime.now(),
+                getRequestPath(request)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDto> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+                HttpStatus.FORBIDDEN.value(),
+                "Access denied: You do not have the required privileges to access this resource.",
+                LocalDateTime.now(),
+                getRequestPath(request)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
@@ -134,14 +169,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             Exception exception,
             WebRequest webRequest
     ) {
-        String requestDetails = getRequestDetails(webRequest);
-        log.error("Unexpected error: {} at [{}]", exception.getMessage(), requestDetails, exception);
+        String requestPath = getRequestPath(webRequest);
+        log.error("Unexpected error: {} at [{}]", exception.getMessage(), requestPath, exception);
 
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "An unexpected error occurred",
                 LocalDateTime.now(),
-                requestDetails
+                requestPath
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);

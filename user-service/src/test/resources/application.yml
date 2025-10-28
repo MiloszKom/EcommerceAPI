@@ -3,13 +3,19 @@ server:
 
 spring:
   application:
-    name: "product-service"
+    name: "user-service"
   config:
     import: optional:configserver:http://localhost:8888
   jpa:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm"
 
 eureka:
   client:
@@ -27,8 +33,14 @@ management:
       probes:
         enabled: true
 
-keycloak:
-  server-url: http://dummy
-  realm: test-realm
-  admin-client-id: fake
-  admin-client-secret: fake-secret
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    oauth:
+      client-id: "ecommerce-cc"
+      use-pkce-with-authorization-code-grant: true
+      authorization-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/auth"
+      token-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/token"
+      oauth2-redirect-url: "${API_GATEWAY_URL}/swagger-ui/oauth2-redirect.html"

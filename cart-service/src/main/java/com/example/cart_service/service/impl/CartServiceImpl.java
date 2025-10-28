@@ -2,6 +2,7 @@ package com.example.cart_service.service.impl;
 
 import com.example.cart_service.dto.CartDto;
 import com.example.cart_service.dto.CartRequest;
+import com.example.cart_service.dto.UpdateCartItemRequest;
 import com.example.cart_service.dto.client.ProductDto;
 import com.example.cart_service.entity.Cart;
 import com.example.cart_service.entity.CartItem;
@@ -70,7 +71,7 @@ public class CartServiceImpl implements ICartService {
 
         log.debug("Checking productId={} exists via ProductFeignClient", request.productId());
         ProductDto product = productFeignClient.getProductById(request.productId());
-        log.info("Product existence successfully confirmed for productId={} (name={})", product.getId(), product.getName());
+        log.info("Product existence successfully confirmed for productId={} (name={})", product.id(), product.name());
 
         CartItem cartItem = new CartItem();
         cartItem.setProductId(request.productId());
@@ -86,44 +87,44 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     @Transactional
-    public CartDto updateCartItem(String userId, CartRequest request) {
-        log.info("UserId={} updating productId={} quantity={}", userId, request.productId(), request.quantity());
+    public CartDto updateCartItem(String userId, Long itemId, UpdateCartItemRequest request) {
+        log.info("UserId={} updating itemId={} quantity={}", userId, itemId, request.quantity());
         Cart cart = getOrCreateCart(userId);
 
         CartItem cartItem = cart.getItems().stream()
-                .filter(item -> item.getProductId().equals(request.productId()))
+                .filter(item -> item.getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> {
-                    log.warn("UserId={} attempted to update productId={} that doesn't exist in cart",
-                            userId, request.productId());
-                    return new ResourceNotFoundException("Product", "productId", request.productId());
+                    log.warn("UserId={} attempted to update itemId={} that doesn't exist in cart",
+                            userId, itemId);
+                    return new ResourceNotFoundException("Cart item", "id", itemId);
                 });
 
         cartItem.setQuantity(request.quantity());
 
         Cart updatedCart = cartRepository.save(cart);
-        log.debug("Updated quantity for productId={} in userId={} cart", request.productId(), userId);
+        log.debug("Updated quantity for itemId={} in userId={} cart", itemId, userId);
         return CartMapper.mapToCartDto(updatedCart);
     }
 
     @Override
     @Transactional
-    public CartDto removeCartItem(String userId, Long productId) {
-        log.info("UserId={} removing productId={} from cart", userId, productId);
+    public CartDto removeCartItem(String userId, Long itemId) {
+        log.info("UserId={} removing itemId={} from cart", userId, itemId);
         Cart cart = getOrCreateCart(userId);
 
         CartItem cartItem = cart.getItems().stream()
-                .filter(item -> item.getProductId().equals(productId))
+                .filter(item -> item.getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> {
-                    log.warn("UserId={} tried to remove productId={} that doesn't exist", userId, productId);
-                    return new ResourceNotFoundException("Product", "productId", productId);
+                    log.warn("UserId={} tried to remove itemId={} that doesn't exist", userId, itemId);
+                    return new ResourceNotFoundException("CartItem", "id", itemId);
                 });
 
         cart.removeItem(cartItem);
 
         Cart updatedCart = cartRepository.save(cart);
-        log.info("UserId={} removed productId={} successfully", userId, productId);
+        log.info("UserId={} removed itemId={} successfully", userId, itemId);
         return CartMapper.mapToCartDto(updatedCart);
     }
 

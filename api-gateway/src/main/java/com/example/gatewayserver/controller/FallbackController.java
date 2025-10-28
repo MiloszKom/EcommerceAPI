@@ -1,6 +1,6 @@
 package com.example.gatewayserver.controller;
 
-import com.example.gatewayserver.security.ErrorResponseDto;
+import com.example.gatewayserver.exception.ErrorResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

@@ -8,169 +8,253 @@ import com.example.product_service.exception.ConflictException;
 import com.example.product_service.exception.ResourceNotFoundException;
 import com.example.product_service.repository.ProductRepository;
 import com.example.product_service.service.impl.ProductServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Field;
+import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ProductServiceImplUnitTest {
+@ExtendWith(MockitoExtension.class)
+class ProductServiceImplUnitTest {
 
     @Mock
     private ProductRepository repository;
 
     @InjectMocks
-    private ProductServiceImpl service;
+    private ProductServiceImpl productService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    private Product createTestProduct() {
+        Product product = new Product();
+        product.setName("Test Product");
+        product.setDescription("Test Description");
+        product.setPrice(new BigDecimal("19.99"));
+        product.setStock(10);
+        return product;
+    }
+
+    private ProductRequestDto createTestProductRequest() {
+        return new ProductRequestDto(
+                "Test Product",
+                "Test Description",
+                new BigDecimal("19.99"),
+                10
+        );
     }
 
     @Test
-    void getProducts_ShouldMapAllProductsCorrectly() {
-        Product p1 = createProduct(1L, "Laptop", "A great laptop", BigDecimal.valueOf(1000), 5);
-        Product p2 = createProduct(2L, "Phone", "A great phone", BigDecimal.valueOf(800), 10);
+    void getProducts_ShouldReturnAllProducts() {
+        // Arrange
+        Product product1 = createTestProduct();
+        Product product2 = createTestProduct();
+        product2.setName("Test Product 2");
 
-        when(repository.findAll()).thenReturn(List.of(p1, p2));
+        when(repository.findAll()).thenReturn(List.of(product1, product2));
 
-        List<ProductSummaryDto> result = service.getProducts();
+        // Act
+        List<ProductSummaryDto> result = productService.getProducts();
 
+        // Assert
         assertEquals(2, result.size());
-        assertEquals("Laptop", result.get(0).name());
-        assertEquals("Phone", result.get(1).name());
         verify(repository, times(1)).findAll();
     }
 
     @Test
-    void getProductById_ShouldReturnProductDetailsDto_WhenProductExists() {
-        Product product = createProduct(1L, "Laptop", "A great laptop", BigDecimal.valueOf(1000), 5);
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+    void getProducts_WhenNoProducts_ShouldReturnEmptyList() {
+        // Arrange
+        when(repository.findAll()).thenReturn(List.of());
 
-        ProductDetailsDto result = service.getProductById(1L);
+        // Act
+        List<ProductSummaryDto> result = productService.getProducts();
 
-        assertEquals("Laptop", result.name());
-        verify(repository, times(1)).findById(1L);
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(repository, times(1)).findAll();
     }
 
     @Test
-    void getProductById_ShouldThrowException_WhenProductDoesNotExist() {
-        when(repository.findById(999L)).thenReturn(Optional.empty());
+    void getProductById_WithValidId_ShouldReturnProduct() {
+        // Arrange
+        Long productId = 1L;
+        Product product = createTestProduct();
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
 
-        assertThrows(ResourceNotFoundException.class, () -> service.getProductById(999L));
+        // Act
+        ProductDetailsDto result = productService.getProductById(productId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(product.getName(), result.name());
+        verify(repository, times(1)).findById(productId);
     }
 
     @Test
-    void createProduct_ShouldSaveAndReturnCreatedProduct() {
-        ProductRequestDto request = new ProductRequestDto("Laptop", "Nice laptop", BigDecimal.valueOf(1000), 5);
-        Product saved = createProduct(1L, "Laptop", "Nice laptop", BigDecimal.valueOf(1000), 5);
+    void getProductById_WithInvalidId_ShouldThrowException() {
+        // Arrange
+        Long productId = 999L;
+        when(repository.findById(productId)).thenReturn(Optional.empty());
 
-        when(repository.save(any(Product.class))).thenReturn(saved);
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> productService.getProductById(productId));
+        verify(repository, times(1)).findById(productId);
+    }
 
-        ProductDetailsDto result = service.createProduct(request);
+    @Test
+    void createProduct_WithValidRequest_ShouldCreateProduct() {
+        // Arrange
+        ProductRequestDto request = createTestProductRequest();
+        Product savedProduct = createTestProduct();
 
-        assertEquals("Laptop", result.name());
-        assertEquals(5, result.stock());
+        when(repository.save(any(Product.class))).thenReturn(savedProduct);
+
+        // Act
+        ProductDetailsDto result = productService.createProduct(request);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(savedProduct.getId(), result.id());
+        assertEquals(request.name(), result.name());
         verify(repository, times(1)).save(any(Product.class));
     }
 
     @Test
-    void updateProduct_ShouldUpdateAndReturnUpdatedProduct() {
-        Product existing = createProduct(1L, "Old Laptop", "Old desc", BigDecimal.valueOf(800), 10);
-        Product updated = createProduct(1L, "New Laptop", "New desc", BigDecimal.valueOf(1200), 8);
-        ProductRequestDto request = new ProductRequestDto("New Laptop", "New desc", BigDecimal.valueOf(1200), 8);
+    void updateProduct_WithValidId_ShouldUpdateProduct() {
+        // Arrange
+        Long productId = 1L;
+        ProductRequestDto request = new ProductRequestDto(
+                "Updated Product",
+                "Updated Description",
+                new BigDecimal("29.99"),
+                20
+        );
 
-        when(repository.findById(1L)).thenReturn(Optional.of(existing));
-        when(repository.save(existing)).thenReturn(updated);
+        Product existingProduct = createTestProduct();
+        Product updatedProduct = createTestProduct();
+        updatedProduct.setName("Updated Product");
+        updatedProduct.setDescription("Updated Description");
+        updatedProduct.setPrice(new BigDecimal("29.99"));
+        updatedProduct.setStock(20);
 
-        ProductDetailsDto result = service.updateProduct(1L, request);
+        when(repository.findById(productId)).thenReturn(Optional.of(existingProduct));
+        when(repository.save(any(Product.class))).thenReturn(updatedProduct);
 
-        assertEquals("New Laptop", result.name());
-        assertEquals(8, result.stock());
-        verify(repository, times(1)).save(existing);
+        // Act
+        ProductDetailsDto result = productService.updateProduct(productId, request);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(request.name(), result.name());
+        assertEquals(request.description(), result.description());
+        verify(repository, times(1)).findById(productId);
+        verify(repository, times(1)).save(existingProduct);
     }
 
     @Test
-    void updateProduct_ShouldThrowException_WhenProductDoesNotExist() {
-        ProductRequestDto request = new ProductRequestDto("New Laptop", "New desc", BigDecimal.valueOf(1200), 8);
-        when(repository.findById(1L)).thenReturn(Optional.empty());
+    void updateProduct_WithInvalidId_ShouldThrowException() {
+        // Arrange
+        Long productId = 999L;
+        ProductRequestDto request = createTestProductRequest();
+        when(repository.findById(productId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.updateProduct(1L, request));
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> productService.updateProduct(productId, request));
+        verify(repository, times(1)).findById(productId);
+        verify(repository, never()).save(any(Product.class));
     }
 
     @Test
-    void deleteProduct_ShouldDeleteExistingProduct() {
-        Product product = createProduct(1L, "Laptop", "Nice laptop", BigDecimal.valueOf(1000), 5);
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+    void deleteProduct_WithValidId_ShouldDeleteProduct() {
+        // Arrange
+        Long productId = 1L;
+        Product product = createTestProduct();
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
+        doNothing().when(repository).delete(product);
 
-        service.deleteProduct(1L);
+        // Act
+        productService.deleteProduct(productId);
 
+        // Assert
+        verify(repository, times(1)).findById(productId);
         verify(repository, times(1)).delete(product);
     }
 
     @Test
-    void deleteProduct_ShouldThrowException_WhenNotFound() {
-        when(repository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> service.deleteProduct(1L));
+    void deleteProduct_WithInvalidId_ShouldThrowException() {
+        // Arrange
+        Long productId = 999L;
+        when(repository.findById(productId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> productService.deleteProduct(productId));
+        verify(repository, times(1)).findById(productId);
+        verify(repository, never()).delete(any(Product.class));
     }
 
     @Test
-    void reduceStock_ShouldReduceQuantityAndSave() {
-        Product product = createProduct(1L, "Laptop", "desc", BigDecimal.valueOf(1000), 10);
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+    void reduceStock_WithSufficientStock_ShouldReduceStock() {
+        // Arrange
+        Long productId = 1L;
+        Integer quantity = 5;
+        Product product = createTestProduct();
+        product.setStock(10);
 
-        service.reduceStock(1L, 3);
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
+        when(repository.save(any(Product.class))).thenReturn(product);
 
-        assertEquals(7, product.getStock());
-        verify(repository).save(product);
+        // Act
+        productService.reduceStock(productId, quantity);
+
+        // Assert
+        assertEquals(5, product.getStock());
+        verify(repository, times(1)).findById(productId);
+        verify(repository, times(1)).save(product);
     }
 
     @Test
-    void reduceStock_ShouldThrowConflictException_WhenStockInsufficient() {
-        Product product = createProduct(1L, "Laptop", "desc", BigDecimal.valueOf(1000), 2);
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+    void reduceStock_WithInsufficientStock_ShouldThrowException() {
+        // Arrange
+        Long productId = 1L;
+        Integer quantity = 15;
+        Product product = createTestProduct();
+        product.setStock(10);
 
-        assertThrows(ConflictException.class, () -> service.reduceStock(1L, 5));
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
+
+        // Act & Assert
+        assertThrows(ConflictException.class,
+                () -> productService.reduceStock(productId, quantity));
+        verify(repository, times(1)).findById(productId);
+        verify(repository, never()).save(any(Product.class));
     }
 
     @Test
-    void increaseStock_ShouldIncreaseQuantityAndSave() {
-        Product product = createProduct(1L, "Laptop", "desc", BigDecimal.valueOf(1000), 5);
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+    void increaseStock_WithValidQuantity_ShouldIncreaseStock() {
+        // Arrange
+        Long productId = 1L;
+        Integer quantity = 5;
+        Product product = createTestProduct();
+        product.setStock(10);
 
-        service.increaseStock(1L, 3);
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
+        when(repository.save(any(Product.class))).thenReturn(product);
 
-        assertEquals(8, product.getStock());
-        verify(repository).save(product);
-    }
+        // Act
+        productService.increaseStock(productId, quantity);
 
-    // --- Helper method ---
-    private static Product createProduct(Long id, String name, String description, BigDecimal price, int stock) {
-        Product product = new Product();
-        product.setName(name);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setStock(stock);
-
-        if (id != null) {
-            try {
-                Field idField = Product.class.getDeclaredField("id");
-                idField.setAccessible(true);
-                idField.set(product, id);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return product;
+        // Assert
+        assertEquals(15, product.getStock());
+        verify(repository, times(1)).findById(productId);
+        verify(repository, times(1)).save(product);
     }
 }

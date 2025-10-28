@@ -1,45 +1,38 @@
 package com.example.user_service.integration;
 
-import com.example.user_service.dto.KeycloakUserRepresentation;
-import com.example.user_service.dto.LoginRequestDto;
-import com.example.user_service.dto.RegisterRequestDto;
-import com.example.user_service.dto.TokenResponse;
+import com.example.user_service.dto.UserUpdateRequestDto;
 import com.example.user_service.entity.User;
-import com.example.user_service.exception.KeycloakException;
 import com.example.user_service.repository.UserRepository;
-import com.example.user_service.service.client.KeycloakClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.LocalDateTime;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@SpringBootTest(properties = "keycloak.enabled=false")
+@SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
 class UserControllerIntegrationTest {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15");
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,87 +40,118 @@ class UserControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
-    @MockBean
-    private KeycloakClient keycloakClient;
-
     @Autowired
     private ObjectMapper objectMapper;
 
     private User existingUser;
+    private String validJwtToken;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        registry.add("KEYCLOAK_BASE_URL", () -> "http://localhost:8080");
+        registry.add("API_GATEWAY_URL", () -> "http://localhost:8080");
+    }
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
 
+        // Create a test user
         existingUser = new User();
-        existingUser.setId("user-123");
-        existingUser.setAddress("123 Main St");
-        existingUser.setPhoneNumber("555-1234");
-        existingUser.setCreatedAt(LocalDateTime.now());
-        existingUser.setUpdatedAt(LocalDateTime.now());
+        existingUser.setId("test-user-id");
+        existingUser.setAddress("123 Test Street");
+        existingUser.setPhoneNumber("1234567890");
         userRepository.save(existingUser);
-
-        // Reset mocks
-        Mockito.reset(keycloakClient);
     }
 
     @Test
-    void getCurrentUserDetails_ShouldReturnUserDetails() throws Exception {
+    void getCurrentUserDetails_WithValidJwt_ReturnsUserDetails() throws Exception {
+        // Arrange
+        String expectedUsername = "testuser";
+        String expectedEmail = "test@example.com";
+
+        // Act & Assert
         mockMvc.perform(get("/api/users/me")
-                        .header("X-User-Id", existingUser.getId())
-                        .header("X-User-Username", "john_doe")
-                        .header("X-User-Email", "john@example.com"))
+                        .with(SecurityMockMvcRequestPostProcessors.jwt().jwt(j -> j
+                                .claim("sub", "test-user-id")
+                                .claim("preferred_username", "testuser")
+                                .claim("email", "test@example.com")))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username", is("john_doe")))
-                .andExpect(jsonPath("$.email", is("john@example.com")))
-                .andExpect(jsonPath("$.address", is("123 Main St")));
+                .andExpect(jsonPath("$.username").value(expectedUsername))
+                .andExpect(jsonPath("$.email").value(expectedEmail))
+                .andExpect(jsonPath("$.address").value(existingUser.getAddress()))
+                .andExpect(jsonPath("$.phoneNumber").value(existingUser.getPhoneNumber()))
+                .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty());
     }
 
     @Test
-    void getCurrentUserDetails_ShouldReturn404_WhenUserNotFound() throws Exception {
+    void getCurrentUserDetails_WithoutJwt_ReturnsUnauthorized() throws Exception {
+        // Act & Assert
         mockMvc.perform(get("/api/users/me")
-                        .header("X-User-Id", "nonexistent-id")
-                        .header("X-User-Username", "ghost")
-                        .header("X-User-Email", "ghost@example.com"))
-                .andExpect(status().isNotFound());
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void register_ShouldReturn400_WhenKeycloakUserCreationFails() throws Exception {
+    void updateCurrentUserDetails_WithValidJwtAndData_ReturnsUpdatedDetails() throws Exception {
         // Arrange
-        RegisterRequestDto request = new RegisterRequestDto("username","duplicate@example.com", "password123");
-
-        Mockito.when(keycloakClient.createUser(any(KeycloakUserRepresentation.class)))
-                .thenThrow(new KeycloakException("User already exists", HttpStatus.BAD_REQUEST));
+        UserUpdateRequestDto updateDto = new UserUpdateRequestDto();
+        updateDto.setAddress("456 New Street");
+        updateDto.setPhoneNumber("0987654321");
 
         // Act & Assert
-        mockMvc.perform(post("/api/users/register")
+        mockMvc.perform(put("/api/users/me")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt().jwt(j -> j
+                                .claim("sub", "test-user-id")
+                                .claim("preferred_username", "testuser")
+                                .claim("email", "test@example.com")))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("User already exists")));
+                        .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("testuser"))
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.address").value("456 New Street"))
+                .andExpect(jsonPath("$.phoneNumber").value("0987654321"))
+                .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty());
 
-        // Verify no user was saved locally
-        assert userRepository.count() == 1; // Only the existingUser from setUp
+        // Verify database state
+        User updatedUser = userRepository.findById("test-user-id").orElseThrow();
+        assertEquals("456 New Street", updatedUser.getAddress());
+        assertEquals("0987654321", updatedUser.getPhoneNumber());
     }
 
     @Test
-    void login_ShouldReturn401_WhenCredentialsAreInvalid() throws Exception {
+    void updateCurrentUserDetails_WithInvalidData_ReturnsBadRequest() throws Exception {
         // Arrange
-        LoginRequestDto request = new LoginRequestDto("user@example.com", "wrong-password");
-
-        Mockito.when(keycloakClient.getUserTokens(
-                        eq("password"),
-                        eq("user@example.com"),
-                        eq("wrong-password"),
-                        eq("openid profile email")))
-                .thenThrow(new KeycloakException("Invalid credentials", HttpStatus.UNAUTHORIZED));
+        UserUpdateRequestDto invalidDto = new UserUpdateRequestDto();
+        invalidDto.setAddress("A".repeat(256)); // Exceeds max length
+        invalidDto.setPhoneNumber("1234567890");
 
         // Act & Assert
-        mockMvc.perform(post("/api/users/login")
+        mockMvc.perform(put("/api/users/me")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt().jwt(j -> j
+                                .claim("sub", "test-user-id")
+                                .claim("preferred_username", "testuser")
+                                .claim("email", "test@example.com")))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Invalid credentials")));
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateCurrentUserDetails_WithoutJwt_ReturnsUnauthorized() throws Exception {
+        // Arrange
+        UserUpdateRequestDto updateDto = new UserUpdateRequestDto();
+        updateDto.setAddress("456 New Street");
+        updateDto.setPhoneNumber("0987654321");
+
+        // Act & Assert
+        mockMvc.perform(put("/api/users/me")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(status().isUnauthorized());
     }
 }

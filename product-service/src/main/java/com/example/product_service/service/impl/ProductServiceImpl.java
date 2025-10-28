@@ -30,7 +30,7 @@ public class ProductServiceImpl implements IProductService {
         return repository.findById(productId)
                 .orElseThrow(() -> {
                     log.error("Product not found with ID: {}", productId);
-                    return new ResourceNotFoundException("Product", "Id", productId);
+                    return new ResourceNotFoundException("Product", "productId", productId);
                 });
     }
 
@@ -54,13 +54,13 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductDetailsDto createProduct(ProductRequestDto request) {
-        log.info("Creating new product: {}", request.getName());
+        log.info("Creating new product: {}", request.name());
         Product product = new Product();
 
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setStock(request.getStock());
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setStock(request.stock());
 
         Product saved = repository.save(product);
         log.debug("Product saved with ID: {}", saved.getId());;
@@ -69,13 +69,13 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductDetailsDto updateProduct(long productId, ProductRequestDto request) {
-        log.info("Updating product: {}", request.getName());
+        log.info("Updating product: {}", request.name());
         Product product = getProduct(productId);
 
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setStock(request.getStock());
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setStock(request.stock());
 
         Product updated = repository.save(product);
         log.info("Updated product with ID: {}", productId);

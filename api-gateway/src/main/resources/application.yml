@@ -11,7 +11,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "${KEYCLOAK_BASE_URL:http://localhost:7080}/realms/ecommerce-realm"
+          issuer-uri: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm"
 
   cloud:
     circuitbreaker:
@@ -43,38 +43,54 @@ management:
     web:
       exposure:
         include: "*"
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: "*"
-    health:
-      livenessState:
-        enabled: true
-      readinessState:
-        enabled: true
-    endpoint:
-      shutdown:
-        enabled: true
-      health:
-        probes:
-          enabled: true
   endpoint:
-    gateway:
-      access: unrestricted
-  info:
-    env:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
       enabled: true
   metrics:
     tags:
       application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+    oauth:
+      client-id: "ecommerce-cc"
+      use-pkce-with-authorization-code-grant: true
+      authorization-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/auth"
+      token-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/token"
+    oauth2-redirect-url: "http://localhost:8080/swagger-ui/oauth2-redirect.html"
+    urls:
+      - url: /user-service/v3/api-docs
+        name: User Service
+      - url: /product-service/v3/api-docs
+        name: Product Service
+      - url: /cart-service/v3/api-docs
+        name: Cart Service
+      - url: /order-service/v3/api-docs
+        name: Order Service
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider: TRACE
+    org.springframework.security.oauth2.jwt: TRACE
+    reactor.netty.http.client: DEBUG
+    reactor.netty.http.server: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
 
 info:
   app:
     name: "gatewayserver"
     description: "Gateway Server for Ecommerce Application"
     version: "1.0"
-
-logging:
-  pattern:
-    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

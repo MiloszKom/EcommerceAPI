@@ -1,5 +1,6 @@
 server:
   port: 0
+
 spring:
   application:
     name: "product-service"
@@ -9,9 +10,17 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm"
+
 eureka:
   client:
     enabled: false
+
 management:
   endpoints:
     web:
@@ -23,3 +32,15 @@ management:
     health:
       probes:
         enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    oauth:
+      client-id: "ecommerce-cc"
+      use-pkce-with-authorization-code-grant: true
+      authorization-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/auth"
+      token-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/token"
+      oauth2-redirect-url: "${API_GATEWAY_URL}/swagger-ui/oauth2-redirect.html"

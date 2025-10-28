@@ -1,6 +1,5 @@
 package com.example.order_service.service.impl;
 
-import com.example.order_service.controller.OrderController;
 import com.example.order_service.dto.*;
 import com.example.order_service.dto.client.CartDto;
 import com.example.order_service.dto.client.ProductDto;
@@ -158,7 +157,7 @@ public class OrderServiceImpl implements IOrderService {
 
         if (order.getStatus() != OrderStatus.PENDING) {
             log.warn("Cannot cancel orderId={} with status={}", orderId, order.getStatus());
-            throw new IllegalArgumentException(
+            throw new ConflictException(
                     "Order cannot be cancelled. Current status: " + order.getStatus()
             );
         }
@@ -196,7 +195,7 @@ public class OrderServiceImpl implements IOrderService {
 
         if (order.getStatus() != OrderStatus.PAID) {
             log.warn("Cannot complete orderId={} with status={}", orderId, order.getStatus());
-            throw new IllegalArgumentException(
+            throw new ConflictException(
                     "Only paid orders can be marked as completed. Current status: " + order.getStatus()
             );
         }

@@ -67,6 +67,20 @@
             <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
         </dependency>
 
+        <!-- === Security === -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
+        </dependency>
+
         <!-- === Testing === -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -90,6 +104,11 @@
             <version>1.20.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- === Monitoring & Observability === -->
         <dependency>
@@ -101,6 +120,13 @@
             <artifactId>opentelemetry-javaagent</artifactId>
             <version>${otelVersion}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- === Documentation === -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.13</version>
         </dependency>
     </dependencies>
 

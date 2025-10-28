@@ -17,15 +17,15 @@ command: "start-dev"
 
 resources:
   limits:
-    cpu: 1000m
-    memory: 1Gi
-  requests:
-    cpu: 500m
+    cpu: 250m
     memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
 
 persistence:
-  enabled: true
-  existingClaim: keycloak-pvc
+  enabled: false
+#  existingClaim: keycloak-pvc
 #  Disable on first install ^
   accessModes:
     - ReadWriteOnce

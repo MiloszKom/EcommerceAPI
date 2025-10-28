@@ -3,6 +3,7 @@ package com.example.product_service.controller;
 import com.example.product_service.dto.StockUpdateRequest;
 import com.example.product_service.service.IProductService;
 import com.example.product_service.service.impl.ProductServiceImpl;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/internal/products")
 @Validated
+@Hidden
 public class InternalProductController {
     private static final Logger log = LoggerFactory.getLogger(InternalProductController.class);
     private final IProductService productService;

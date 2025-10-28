@@ -1,64 +1,24 @@
 package com.example.product_service.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
-public class ProductRequestDto {
+public record ProductRequestDto (
+        @NotBlank(message = "A product must have a name")
+        @Size(max = 100, message = "Product name cannot exceed 100 characters")
+        String name,
 
-    @NotBlank(message = "A product must have a name")
-    private String name;
+        @NotBlank(message = "A product must have a description")
+        @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+        String description,
 
-    @NotBlank(message = "A product must have a description")
-    private String description;
+        @NotNull(message = "A product must have a price")
+        @DecimalMin(value = "0.0", message = "Price cannot be negative")
+        BigDecimal price,
 
-    @NotNull(message = "A product must have a price")
-    @DecimalMin(value = "0.0", message = "Price cannot be negative")
-    private BigDecimal price;
-
-    @NotNull(message = "A product must have stock")
-    @Min(value = 0, message = "Stock cannot be negative")
-    private Integer stock;
-
-    public ProductRequestDto(String name, String description, BigDecimal price, Integer stock) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.stock = stock;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
+        @NotNull(message = "A product must have stock")
+        @Min(value = 0, message = "Stock cannot be negative")
+        Integer stock
+) {
 }
