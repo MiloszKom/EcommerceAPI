@@ -1,6 +1,5 @@
 package com.example.product_service;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -21,7 +20,8 @@ class ProductServiceApplicationTests {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("KEYCLOAK_BASE_URL", () -> "http://localhost:8080");
+        registry.add("EXTERNAL_KEYCLOAK_URL", () -> "http://localhost:8080");
+        registry.add("INTERNAL_KEYCLOAK_URL", () -> "http://localhost:8080");
         registry.add("API_GATEWAY_URL", () -> "http://localhost:8080");
     }
 

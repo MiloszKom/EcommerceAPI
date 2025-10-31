@@ -51,15 +51,16 @@ class ProductControllerIntegrationTest {
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
-        registry.add("KEYCLOAK_BASE_URL", () -> "http://localhost:8080");
+        registry.add("EXTERNAL_KEYCLOAK_URL", () -> "http://localhost:8080");
+        registry.add("INTERNAL_KEYCLOAK_URL", () -> "http://localhost:8080");
         registry.add("API_GATEWAY_URL", () -> "http://localhost:8080");
     }
+
 
     @BeforeEach
     void setUp() {
         productRepository.deleteAll();
 
-        // Create a test product
         existingProduct = new Product();
         existingProduct.setName("Test Product");
         existingProduct.setDescription("Test Description");

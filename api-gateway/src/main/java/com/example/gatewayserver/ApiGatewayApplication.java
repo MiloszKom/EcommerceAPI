@@ -23,7 +23,7 @@ public class ApiGatewayApplication {
 		SpringApplication.run(ApiGatewayApplication.class, args);
 	}
 
-    @Value("${KEYCLOAK_BASE_URL}")
+    @Value("${EXTERNAL_KEYCLOAK_URL}")
     private String keycloakUrl;
 
 	@Bean

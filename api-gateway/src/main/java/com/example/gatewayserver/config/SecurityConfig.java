@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 "/user-service/v3/api-docs",
                                 "/product-service/v3/api-docs",
                                 "/cart-service/v3/api-docs",
-                                "/order-service/v3/api-docs"
+                                "/order-service/v3/api-docs",
+                                "/keycloak/**"
                         ).permitAll()
                         .pathMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                         .pathMatchers("/api/**").authenticated()
@@ -57,10 +58,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "http://keycloak.local:*"
+        ));
         config.setAllowCredentials(true);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

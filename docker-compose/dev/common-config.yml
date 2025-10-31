@@ -41,5 +41,6 @@ services:
       service: microservice-configserver-config
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
-      KEYCLOAK_BASE_URL: "http://localhost:7080"
+      EXTERNAL_KEYCLOAK_URL: "http://keycloak.local:7080"
+      INTERNAL_KEYCLOAK_URL: "http://keycloak:8080"
       API_GATEWAY_URL: "http://localhost:8080"

@@ -11,7 +11,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm"
+          issuer-uri: "${EXTERNAL_KEYCLOAK_URL}/realms/ecommerce-realm"
+          jwk-set-uri: "${INTERNAL_KEYCLOAK_URL}/realms/ecommerce-realm/protocol/openid-connect/certs"
 
   cloud:
     circuitbreaker:
@@ -64,7 +65,7 @@ springdoc:
       use-pkce-with-authorization-code-grant: true
       authorization-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/auth"
       token-url: "${KEYCLOAK_BASE_URL}/realms/ecommerce-realm/protocol/openid-connect/token"
-    oauth2-redirect-url: "http://localhost:8080/swagger-ui/oauth2-redirect.html"
+    oauth2-redirect-url: "${API_GATEWAY_URL}/swagger-ui/oauth2-redirect.html"
     urls:
       - url: /user-service/v3/api-docs
         name: User Service
