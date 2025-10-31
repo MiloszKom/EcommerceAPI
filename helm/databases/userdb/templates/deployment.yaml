@@ -28,6 +28,8 @@ spec:
               value: {{ .Values.postgres.password }}
             - name: POSTGRES_DB
               value: {{ .Values.postgres.database }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
@@ -35,4 +37,9 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: data
-          emptyDir: {}
+                {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-pvc
+                {{- else }}
+          emptyDir: { }
+                {{- end }}

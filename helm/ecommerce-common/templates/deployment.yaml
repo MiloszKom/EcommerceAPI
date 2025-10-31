@@ -67,6 +67,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Values.global.configMapName }}
                   key: KEYCLOAK_BASE_URL
+            - name: API_GATEWAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: API_GATEWAY_URL
           {{- end }}
           {{- if .Values.config_enabled }}
             - name: CONFIG_SERVER_URI

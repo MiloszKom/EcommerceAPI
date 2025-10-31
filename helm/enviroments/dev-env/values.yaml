@@ -7,7 +7,10 @@ global:
   otelExporterEndPoint: http://tempo.default.svc.cluster.local:4318
   otelMetricsExporter: none
   otelLogsExporter: none
-  keycloakBaseURL: http://keycloak.default.svc.cluster.local
+
+#  keycloakBaseURL: http://keycloak.default.svc.cluster.local
+  keycloakBaseURL: http://keycloak.local
+  gatewayBaseURL: http://localhost:8080
 
   userDbURL: jdbc:postgresql://userdb:5432/userdb
   productDbURL: jdbc:postgresql://productdb:5432/productdb

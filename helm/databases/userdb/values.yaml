@@ -14,6 +14,12 @@ postgres:
   password: password
   database: userdb
 
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
 resources:
   requests:
     cpu: 100m

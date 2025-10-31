@@ -6,8 +6,8 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: LoadBalancer
-  port: 80
+  type: ClusterIP
+  port: 8080
 
 admin:
   username: user
@@ -15,18 +15,35 @@ admin:
 
 command: "start-dev"
 
+extraEnv:
+  - name: KC_HTTP_ENABLED
+    value: "true"
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KEYCLOAK_BASE_URL
+    value: "http://keycloak.local"
+  - name: KC_LOG_LEVEL
+    value: "INFO"
+
 resources:
   limits:
-    cpu: 250m
-    memory: 512Mi
+    cpu: 500m
+    memory: 2Gi
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 250m
+    memory: 1Gi
 
 persistence:
-  enabled: false
-#  existingClaim: keycloak-pvc
-#  Disable on first install ^
+  enabled: true
   accessModes:
     - ReadWriteOnce
   size: 1Gi
+  storageClass: ""
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hostname: keycloak.local
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  tls: false

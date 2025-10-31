@@ -25,12 +25,16 @@ spec:
               value: {{ .Values.admin.username | quote }}
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
               value: {{ .Values.admin.password | quote }}
+            {{- range .Values.extraEnv }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8080
               protocol: TCP
           resources:
-            {{ toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.persistence.enabled }}
           volumeMounts:
             - name: keycloak-data

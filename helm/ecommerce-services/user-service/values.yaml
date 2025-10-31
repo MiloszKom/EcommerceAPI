@@ -7,7 +7,7 @@ replicaCount: 1
 
 image:
   repository: miloszk/user-service
-  tag: v6
+  tag: v7
 
 containerPort: 8081
 
@@ -23,6 +23,7 @@ config_enabled: true
 eureka_enabled: true
 otel_enabled: true
 configserver_secrets_enabled: false
+
 userdb_enabled: true
 productdb_enabled: false
 cartdb_enabled: false

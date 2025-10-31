@@ -7,7 +7,7 @@ replicaCount: 1
 
 image:
   repository: miloszk/order-service
-  tag: v6
+  tag: v7
 
 containerPort: 8084
 
@@ -18,11 +18,12 @@ service:
 
 appname_enabled: true
 profile_enabled: true
-keycloak_enabled: false
+keycloak_enabled: true
 config_enabled: true
 eureka_enabled: true
 otel_enabled: true
 configserver_secrets_enabled: false
+
 userdb_enabled: false
 productdb_enabled: false
 cartdb_enabled: false
