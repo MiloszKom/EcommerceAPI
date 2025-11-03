@@ -7,7 +7,7 @@ replicaCount: 1
 
 image:
   repository: miloszk/api-gateway
-  tag: v7
+  tag: v7.1.1
 
 containerPort: 8080
 
@@ -15,6 +15,7 @@ service:
   type: LoadBalancer
   port: 8080
   targetPort: 8080
+  loadBalancerIP: 34.116.220.98
 
 appname_enabled: true
 profile_enabled: true

@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.deploymentName }}
+  name: {{ .Values.serviceName }}
   labels:
     app: {{ .Values.appLabel }}
 spec:
@@ -62,11 +62,16 @@ spec:
                   key: SPRING_DATASOURCE_ORDER_URL
           {{- end }}
           {{- if .Values.keycloak_enabled }}
-            - name: KEYCLOAK_BASE_URL
+            - name: EXTERNAL_KEYCLOAK_URL
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.global.configMapName }}
-                  key: KEYCLOAK_BASE_URL
+                  key: EXTERNAL_KEYCLOAK_URL
+            - name: INTERNAL_KEYCLOAK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.global.configMapName }}
+                  key: INTERNAL_KEYCLOAK_URL
             - name: API_GATEWAY_URL
               valueFrom:
                 configMapKeyRef:

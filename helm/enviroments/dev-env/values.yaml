@@ -8,8 +8,8 @@ global:
   otelMetricsExporter: none
   otelLogsExporter: none
 
-#  keycloakBaseURL: http://keycloak.default.svc.cluster.local
-  keycloakBaseURL: http://keycloak.local
+  keycloakExternalURL: http://keycloak.local
+  keycloakInternalURL: http://keycloak.default.svc.cluster.local:8080
   gatewayBaseURL: http://localhost:8080
 
   userDbURL: jdbc:postgresql://userdb:5432/userdb

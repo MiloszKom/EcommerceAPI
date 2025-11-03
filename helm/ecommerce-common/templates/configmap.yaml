@@ -13,7 +13,8 @@ data:
   OTEL_METRICS_EXPORTER: "{{ .Values.global.otelMetricsExporter }}"
   OTEL_LOGS_EXPORTER: "{{ .Values.global.otelLogsExporter }}"
 
-  KEYCLOAK_BASE_URL: "{{ .Values.global.keycloakBaseURL}}"
+  EXTERNAL_KEYCLOAK_URL: "{{ .Values.global.keycloakExternalURL}}"
+  INTERNAL_KEYCLOAK_URL: "{{ .Values.global.keycloakInternalURL}}"
   API_GATEWAY_URL: "{{ .Values.global.gatewayBaseURL}}"
 
   SPRING_DATASOURCE_USER_URL: "{{ .Values.global.userDbURL }}"

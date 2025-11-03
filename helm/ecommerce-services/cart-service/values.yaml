@@ -7,7 +7,7 @@ replicaCount: 1
 
 image:
   repository: miloszk/cart-service
-  tag: v7
+  tag: v7.1
 
 containerPort: 8083
 

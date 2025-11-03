@@ -6,44 +6,60 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
-  port: 8080
+  type: LoadBalancer
+  port: 7080
 
+# Provided from the secrets.yaml file
 admin:
-  username: user
-  password: password
+  username: ""
+  password: ""
 
-command: "start-dev"
+command: "start"
 
 extraEnv:
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HOSTNAME_STRICT
     value: "false"
-  - name: KEYCLOAK_BASE_URL
-    value: "http://keycloak.local"
   - name: KC_LOG_LEVEL
     value: "INFO"
+  - name: KC_PROXY_HEADERS
+    value: "xforwarded"
+  - name: KC_DB
+    value: "postgres"
+  - name: KC_DB_URL
+    value: "jdbc:postgresql://keycloak-postgres:5432/keycloak"
+  - name: KC_DB_USERNAME
+    value: "keycloak"
+  - name: KC_DB_PASSWORD
+    value: "keycloak"
 
 resources:
   limits:
     cpu: 500m
-    memory: 2Gi
+    memory: 1Gi
   requests:
     cpu: 250m
     memory: 1Gi
 
 persistence:
-  enabled: true
-  accessModes:
-    - ReadWriteOnce
-  size: 1Gi
-  storageClass: ""
+  enabled: false
 
-ingress:
+postgresql:
   enabled: true
-  ingressClassName: nginx
-  hostname: keycloak.local
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-  tls: false
+  auth:
+    username: keycloak
+    password: keycloak
+    database: keycloak
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClass: ""
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi

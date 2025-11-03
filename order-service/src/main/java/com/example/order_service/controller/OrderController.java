@@ -3,7 +3,6 @@ package com.example.order_service.controller;
 import com.example.order_service.dto.ErrorResponseDto;
 import com.example.order_service.dto.OrderDetailsDto;
 import com.example.order_service.dto.OrderSummaryDto;
-import com.example.order_service.exception.GlobalExceptionHandler;
 import com.example.order_service.service.IOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,11 +10,11 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -407,6 +406,7 @@ public class OrderController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Get all orders (Admin only)",
             description = "Fetches all orders in the system. Only accessible to admins.",
@@ -419,28 +419,28 @@ public class OrderController {
                                     schema = @Schema(implementation = OrderDetailsDto.class),
                                     examples = @ExampleObject(value = """
                                     [
-                                       {
-                                         "id": 1,
-                                         "status": "COMPLETED",
-                                         "totalPrice": 14999.9,
-                                         "numberOfItems": 10,
-                                         "createdAt": "2025-10-17T00:54:00.114948"
-                                       },
-                                       {
-                                         "id": 2,
-                                         "status": "PENDING",
-                                         "totalPrice": 14999.9,
-                                         "numberOfItems": 10,
-                                         "createdAt": "2025-10-17T01:08:41.437651"
-                                       },
-                                       {
-                                         "id": 3,
-                                         "status": "PAID",
-                                         "totalPrice": 2999.98,
-                                         "numberOfItems": 2,
-                                         "createdAt": "2025-10-27T00:30:06.570163"
-                                       },
-                                      ]
+                                      {
+                                        "id": 1,
+                                        "status": "COMPLETED",
+                                        "totalPrice": 14999.9,
+                                        "numberOfItems": 10,
+                                        "createdAt": "2025-10-17T00:54:00.114948"
+                                      },
+                                      {
+                                        "id": 2,
+                                        "status": "PENDING",
+                                        "totalPrice": 14999.9,
+                                        "numberOfItems": 10,
+                                        "createdAt": "2025-10-17T01:08:41.437651"
+                                      },
+                                      {
+                                        "id": 3,
+                                        "status": "PAID",
+                                        "totalPrice": 2999.98,
+                                        "numberOfItems": 2,
+                                        "createdAt": "2025-10-27T00:30:06.570163"
+                                      }
+                                    ]
                                     """)
                             )
                     ),
@@ -470,6 +470,7 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/complete")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Complete an order (Admin only)",
             description = "Marks a specific order as completed. Admin-only operation.",

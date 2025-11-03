@@ -9,10 +9,18 @@ service:
   type: ClusterIP
   port: 5432
 
+# Uses values from the secrets.yaml file when run in production
 postgres:
   username: postgres
   password: password
   database: productdb
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
 
 resources:
   requests:

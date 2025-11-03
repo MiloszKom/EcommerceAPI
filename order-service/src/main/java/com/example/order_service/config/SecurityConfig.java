@@ -42,9 +42,6 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/orders").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/orders/*/complete").hasRole("ADMIN")
-
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())

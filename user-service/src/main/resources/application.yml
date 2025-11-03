@@ -58,16 +58,6 @@ springdoc:
     enabled: false
 
 logging:
-  level:
-    root: INFO
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
-    org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider: TRACE
-    org.springframework.security.oauth2.jwt: TRACE
-    reactor.netty.http.client: DEBUG
-    reactor.netty.http.server: DEBUG
   pattern:
     level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
 

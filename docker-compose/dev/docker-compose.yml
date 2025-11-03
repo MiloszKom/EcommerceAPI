@@ -295,10 +295,10 @@ services:
       service: microservice-db-config
 
   user-service:
-#    build:
-#        context: ./../../user-service
-#        dockerfile: Dockerfile
-    image: "miloszk/user-service:v7.1"
+    build:
+        context: ./../../user-service
+        dockerfile: Dockerfile
+#    image: "miloszk/user-service:v7.1.1"
     ports:
       - "8081:8081"
     container_name: "user-ms"
@@ -417,7 +417,7 @@ services:
 #    build:
 #      context: ./../../order-service
 #      dockerfile: Dockerfile
-    image: "miloszk/order-service:v7.1"
+    image: "miloszk/order-service:v7.1.1"
     container_name: "order-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8084/actuator/health/readiness || exit 1" ]
@@ -440,10 +440,10 @@ services:
       OTEL_SERVICE_NAME: "order-service"
 
   api-gateway:
-#    build:
-#      context: ./../../api-gateway
-#      dockerfile: Dockerfile
-    image: "miloszk/api-gateway:v7.1"
+    build:
+      context: ./../../api-gateway
+      dockerfile: Dockerfile
+#    image: "miloszk/api-gateway:v7.1.1"
     container_name: api-gateway-ms
     ports:
       - "8080:8080"
