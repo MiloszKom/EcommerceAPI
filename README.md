@@ -5,7 +5,11 @@ It incorporates **Spring Security** with **OAuth 2.0** via **Keycloak** for auth
 The architecture integrates a modern **observability stack**, including **OpenTelemetry (OTel)**, **Grafana**, **Loki**, **Tempo**, and **Prometheus**.
 Deployment is supported through **Docker Compose** for local environments and **Kubernetes** with **Helm** for scalable deployments. 
 
-> **Deployment Status**: Currently in active development.  
+# Links
+
+📘 API Documentation (Swagger UI) – [http://34.116.220.98:8080/swagger-ui/index.html](http://34.116.220.98:8080/swagger-ui/index.html)
+
+📊 Grafana Dashboard – [http://34.116.204.89:3000/](http://34.116.204.89:3000/)
 
 # Tech Stack
 
