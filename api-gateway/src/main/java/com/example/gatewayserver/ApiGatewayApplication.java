@@ -23,7 +23,7 @@ public class ApiGatewayApplication {
 		SpringApplication.run(ApiGatewayApplication.class, args);
 	}
 
-    @Value("${EXTERNAL_KEYCLOAK_URL}")
+    @Value("${EXTERNAL_KEYCLOAK_URL:http://localhost:7080}")
     private String keycloakUrl;
 
 	@Bean

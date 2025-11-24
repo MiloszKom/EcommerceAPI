@@ -20,8 +20,8 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI(
-            @Value("${EXTERNAL_KEYCLOAK_URL}") String keycloakBase,
-            @Value("${API_GATEWAY_URL}") String apiGatewayUrl
+            @Value("${EXTERNAL_KEYCLOAK_URL:http://localhost:7080}") String keycloakBase,
+            @Value("${API_GATEWAY_URL:http://localhost:8080}") String apiGatewayUrl
     ) {
         String authUrl = keycloakBase + "/realms/ecommerce-realm/protocol/openid-connect/auth";
         String tokenUrl = keycloakBase + "/realms/ecommerce-realm/protocol/openid-connect/token";

@@ -10,7 +10,7 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/MiloszKom/config-repo.git
+          uri: https://github.com/MiloszKom/public-config-repo.git
           username: MiloszKom
           password: ${GIT_TOKEN}
           default-label: "main"

@@ -21,8 +21,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "${EXTERNAL_KEYCLOAK_URL}/realms/ecommerce-realm"
-          jwk-set-uri: "${INTERNAL_KEYCLOAK_URL}/realms/ecommerce-realm/protocol/openid-connect/certs"
+          issuer-uri: "${EXTERNAL_KEYCLOAK_URL:http://localhost:7080}/realms/ecommerce-realm"
+          jwk-set-uri: "${INTERNAL_KEYCLOAK_URL:http://localhost:7080}/realms/ecommerce-realm/protocol/openid-connect/certs"
 
 management:
   endpoints:

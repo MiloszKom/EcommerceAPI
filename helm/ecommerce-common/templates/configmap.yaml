@@ -22,4 +22,6 @@ data:
   SPRING_DATASOURCE_CART_URL: "{{ .Values.global.cartDbURL }}"
   SPRING_DATASOURCE_ORDER_URL: "{{ .Values.global.orderDbURL }}"
 
+  GIT_URI: "{{ .Values.global.gitRepoURI }}"
+
 {{- end -}}

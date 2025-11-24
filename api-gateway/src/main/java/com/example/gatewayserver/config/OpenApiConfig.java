@@ -12,7 +12,7 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${API_GATEWAY_URL}")
+    @Value("${API_GATEWAY_URL:http://localhost:8080}")
     private String gatewayUrl;
 
     @Bean

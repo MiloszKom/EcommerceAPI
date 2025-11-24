@@ -240,12 +240,10 @@ services:
 #    build:
 #        context: ./../../configserver
 #        dockerfile: Dockerfile
-    image: "miloszk/configserver:v7"
+    image: "miloszk/configserver:v8.0"
     container_name: "configserver-ms"
     ports:
       - "8888:8888"
-    env_file:
-      - ../../configserver/.env
     healthcheck:
       test: ["CMD-SHELL", "curl --fail --silent localhost:8888/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -262,7 +260,7 @@ services:
 #    build:
 #        context: ./../../eurekaserver
 #        dockerfile: Dockerfile
-    image: "miloszk/eurekaserver:v7"
+    image: "miloszk/eurekaserver:v8.0"
     container_name: eurekaserver-ms
     ports:
       - "8761:8761"
@@ -295,10 +293,10 @@ services:
       service: microservice-db-config
 
   user-service:
-    build:
-        context: ./../../user-service
-        dockerfile: Dockerfile
-#    image: "miloszk/user-service:v7.1.1"
+#    build:
+#        context: ./../../user-service
+#        dockerfile: Dockerfile
+    image: "miloszk/user-service:v8.0"
     ports:
       - "8081:8081"
     container_name: "user-ms"
@@ -341,7 +339,7 @@ services:
 #    build:
 #      context: ./../../product-service
 #      dockerfile: Dockerfile
-    image: "miloszk/product-service:v7.1"
+    image: "miloszk/product-service:v8.0"
     container_name: "product-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8082/actuator/health/readiness || exit 1" ]
@@ -379,7 +377,7 @@ services:
 #    build:
 #      context: ./../../cart-service
 #      dockerfile: Dockerfile
-    image: "miloszk/cart-service:v7.1"
+    image: "miloszk/cart-service:v8.0"
     container_name: "cart-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8083/actuator/health/readiness || exit 1" ]
@@ -417,7 +415,7 @@ services:
 #    build:
 #      context: ./../../order-service
 #      dockerfile: Dockerfile
-    image: "miloszk/order-service:v7.1.1"
+    image: "miloszk/order-service:v8.0"
     container_name: "order-ms"
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent localhost:8084/actuator/health/readiness || exit 1" ]
@@ -440,10 +438,10 @@ services:
       OTEL_SERVICE_NAME: "order-service"
 
   api-gateway:
-    build:
-      context: ./../../api-gateway
-      dockerfile: Dockerfile
-#    image: "miloszk/api-gateway:v7.1.1"
+#    build:
+#      context: ./../../api-gateway
+#      dockerfile: Dockerfile
+    image: "miloszk/api-gateway:v8.0"
     container_name: api-gateway-ms
     ports:
       - "8080:8080"

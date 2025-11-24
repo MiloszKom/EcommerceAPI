@@ -7,7 +7,7 @@ replicaCount: 1
 
 image:
   repository: miloszk/api-gateway
-  tag: v7.1.1
+  tag: v8.0
 
 containerPort: 8080
 

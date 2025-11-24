@@ -16,3 +16,5 @@ global:
   productDbURL: jdbc:postgresql://productdb:5432/productdb
   cartDbURL: jdbc:postgresql://cartdb:5432/cartdb
   orderDbURL: jdbc:postgresql://orderdb:5432/orderdb
+
+  gitRepoURI: https://github.com/MiloszKom/config-repo.git
